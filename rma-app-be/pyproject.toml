@@ -1,0 +1,39 @@
+[project]
+name = "rma-app-be"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "mkis2001",email = "2001matej@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi (>=0.136.1,<0.137.0)",
+    "uvicorn[standard]",
+    "pydantic (>=2.13.4,<3.0.0)"
+]
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.15.14,<0.16.0)",
+    "mypy (>=2.1.0,<3.0.0)",
+    "pytest (>=9.0.3,<10.0.0)"
+]
+
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+  quote-style = "double"
+  indent-style = "space"
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
