@@ -22,10 +22,37 @@ python -m pip install --upgrade pip
 
 ### 4. Install packages
 
-- Run following to install FastAPI
+- set up poetry
 
 ```
-pip install "fastapi[standard]"
+pipx install poetry
 ```
 
-- Add `pyproject.toml` file and declare project requirements
+- set dependencies in pyproject.toml or during poetry setup
+
+```
+dependencies = [
+    "fastapi (>=0.136.1,<0.137.0)",
+    "uvicorn[standard]",
+    "pydantic (>=2.13.4,<3.0.0)"
+]
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.15.14,<0.16.0)",
+    "mypy (>=2.1.0,<3.0.0)",
+    "pytest (>=9.0.3,<10.0.0)"
+]
+```
+
+- install set dependencies using poetry
+
+```
+poetry install
+```
+
+### 5. Start application
+
+```
+uvicorn app.main:main --reload
+```
