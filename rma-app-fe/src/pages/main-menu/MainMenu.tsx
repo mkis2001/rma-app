@@ -16,9 +16,13 @@ export const MainMenu = () => {
       <MenuItem
         title="Projects"
         icon="record-vinyl"
-        onPress={() => navigation.navigate("Project")}
+        onPress={() => navigation.navigate("ProjectsPage")}
       />
-      <MenuItem title="Songs" icon="music" onPress={() => {}} />
+      <MenuItem
+        title="Songs"
+        icon="music"
+        onPress={() => navigation.navigate("SongsPage")}
+      />
       <MenuItem title="Collaborators" icon="people-group" onPress={() => {}} />
       <MenuItem title="Profile" icon="user-large" onPress={() => {}} />
       <MenuItem title="Settings" icon="gear" onPress={() => {}} />

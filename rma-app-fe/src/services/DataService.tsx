@@ -14,7 +14,7 @@ export const callApi = async ({ method, route, data }: CallApiProps) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: method !== "GET" ? JSON.stringify(data) : undefined,
   });
   const res = await response.json();
   if (!response.ok) {

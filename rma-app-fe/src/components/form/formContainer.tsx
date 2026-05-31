@@ -1,18 +1,25 @@
 import { StyleSheet, View } from "react-native";
+import { Shadow } from "react-native-shadow-2";
 import { colors, measures } from "../../theme";
 
 export const FormContainer = ({ children }: { children: React.ReactNode }) => {
   return (
-    <View style={styles.shadowContainer}>
-      <View style={styles.container}>{children}</View>;
-    </View>
+    <Shadow
+      distance={1}
+      offset={[10, 10]}
+      startColor={colors.backgroundDarker}
+      endColor={colors.backgroundDarker}
+      style={styles.shadowContainer}
+    >
+      <View style={styles.container}>{children}</View>
+    </Shadow>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.background,
-    width: "100%",
+    marginRight: 10,
     borderRadius: measures.radius,
     borderColor: colors.backgroundDarker,
     borderWidth: measures.borderWidth,
@@ -20,9 +27,7 @@ const styles = StyleSheet.create({
     gap: measures.padding,
   },
   shadowContainer: {
-    marginRight: 10,
-    borderRadius: measures.radius,
-    boxShadow: `10px 10px 0px ${colors.backgroundDarker}`,
+    width: "100%",
     marginBottom: 20,
   },
 });
