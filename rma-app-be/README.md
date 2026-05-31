@@ -54,5 +54,5 @@ poetry install
 ### 5. Start application
 
 ```
-uvicorn app.main:main --reload
+uvicorn app.main:app --reload
 ```

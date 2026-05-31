@@ -4,6 +4,7 @@ export const colors = {
   backgroundDarker: "#E8D3B0",
   text: "#242321",
   textLighter: "#403E3B",
+  textTransparent: "#242321ca",
   accent: "#0D825D",
   accentDarker: "#074A35",
   error: "#D44D5C",
@@ -13,6 +14,7 @@ export const colors = {
 export const typography = {
   fontFamily: "SNPro-Regular",
   fontFamilyBold: "SNPro-Bold",
+  fontFamilyItalic: "SNPro-Italic",
   fontFamilyHeader: "Oi-Regular",
   color: colors.text,
   fontSize: 20,

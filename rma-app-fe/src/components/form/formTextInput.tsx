@@ -7,6 +7,7 @@ type FormTextInputProps<T extends FieldValues> = {
   control: Control<T>;
   name: Path<T>;
   rules?: any;
+  label?: string;
   placeholder?: string;
   multiline?: boolean;
 };
@@ -15,12 +16,13 @@ export const FormTextInput = <T extends FieldValues>({
   control,
   name,
   rules,
+  label,
   placeholder,
   multiline = false,
 }: FormTextInputProps<T>) => {
   return (
     <>
-      {placeholder && <Label title={placeholder} />}
+      {label && <Label title={label} />}
       <Controller
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
