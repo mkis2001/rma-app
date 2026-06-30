@@ -15,7 +15,7 @@ export const typography = {
   fontFamily: "SNPro-Regular",
   fontFamilyBold: "SNPro-Bold",
   fontFamilyItalic: "SNPro-Italic",
-  fontFamilyHeader: "Oi-Regular",
+  fontFamilyHeader: "SNPro-Bold",
   color: colors.text,
   fontSize: 20,
 };

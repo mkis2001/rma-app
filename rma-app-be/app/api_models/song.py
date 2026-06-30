@@ -3,12 +3,13 @@ from typing import Optional
 from pydantic import Field
 
 from app.api_models.base import ApiBaseModel
+from app.constants import NAME_MAX_LENGTH
 
 
 class SongBase(ApiBaseModel):
     """Base model for a song."""
 
-    name: str = Field(max_length=32)
+    name: str = Field(max_length=NAME_MAX_LENGTH)
 
 
 class SongProject(ApiBaseModel):
@@ -27,7 +28,7 @@ class SongShortResponse(SongBase):
 class SongResponse(SongShortResponse):
     """Model for song response."""
 
-    lyrics: Optional[str] = Field(default=None, max_length=255)
+    lyrics: Optional[str] = Field(default=None, max_length=25000)
     project: SongProject
 
 
@@ -35,5 +36,5 @@ class SongCreateRequest(SongBase):
     """Model for create song request."""
 
     name: str
-    lyrics: Optional[str] = Field(default=None, max_length=255)
+    lyrics: Optional[str] = Field(default=None, max_length=25000)
     project_id: int

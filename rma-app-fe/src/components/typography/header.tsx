@@ -8,7 +8,7 @@ type HeaderProps = {
 };
 
 const types: Record<NonNullable<HeaderProps["type"]>, TextStyle> = {
-  h1: { fontSize: 32 },
+  h1: { fontSize: 40 },
   h2: { fontSize: 24 },
   h3: { fontSize: 18 },
 };
