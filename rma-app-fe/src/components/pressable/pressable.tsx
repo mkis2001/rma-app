@@ -13,6 +13,7 @@ export const Pressable = ({
   secondaryTitle,
   icon,
   color = colors.background,
+  iconColor,
   secondaryColor = colors.backgroundDarker,
   backgroundColor = colors.textLighter,
   shadowColor = colors.text,
@@ -22,6 +23,7 @@ export const Pressable = ({
   secondaryTitle?: string;
   icon?: React.ComponentProps<typeof FontAwesome6>["name"];
   color?: string;
+  iconColor?: string;
   secondaryColor?: string;
   backgroundColor?: string;
   shadowColor?: string;
@@ -55,7 +57,9 @@ export const Pressable = ({
         <RegularText style={[styles.text, { color: color }]}>
           {title}
         </RegularText>
-        {icon && <FontAwesome6 name={icon} size={32} color={color} />}
+        {icon && (
+          <FontAwesome6 name={icon} size={32} color={iconColor || color} />
+        )}
       </View>
       {secondaryTitle && (
         <View>

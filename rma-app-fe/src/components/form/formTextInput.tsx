@@ -10,6 +10,7 @@ type FormTextInputProps<T extends FieldValues> = {
   label?: string;
   placeholder?: string;
   multiline?: boolean;
+  secureTextEntry?: boolean;
 };
 
 export const FormTextInput = <T extends FieldValues>({
@@ -19,6 +20,7 @@ export const FormTextInput = <T extends FieldValues>({
   label,
   placeholder,
   multiline = false,
+  secureTextEntry = false,
 }: FormTextInputProps<T>) => {
   return (
     <>
@@ -33,6 +35,7 @@ export const FormTextInput = <T extends FieldValues>({
             onBlur={onBlur}
             onChangeText={onChange}
             multiline={multiline}
+            secureTextEntry={secureTextEntry}
           />
         )}
         name={name}

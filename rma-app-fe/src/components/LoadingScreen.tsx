@@ -6,7 +6,7 @@ export const LoadingScreen = () => {
   return (
     <View style={styles.container}>
       <LottieView
-        source={require("../../assets/animations/loading_animation (1).json")}
+        source={require("../../assets/animations/loading_animation.json")}
         autoPlay
         loop
         style={{

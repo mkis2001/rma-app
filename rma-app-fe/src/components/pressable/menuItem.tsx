@@ -20,6 +20,7 @@ export const MenuItem = ({
       secondaryTitle={secondaryTitle}
       icon={icon}
       color={colors.background}
+      iconColor={colors.backgroundDarker}
       backgroundColor={colors.textLighter}
       shadowColor={colors.text}
     />
