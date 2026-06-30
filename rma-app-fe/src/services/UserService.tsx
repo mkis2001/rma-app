@@ -1,10 +1,7 @@
+import { CreateUser, UsernameAvailableResponse } from "../types/userTypes";
 import { callApi } from "./DataService";
 
 const endpoint = "users";
-
-type UsernameAvailableResponse = {
-  available: boolean;
-};
 
 export const UsernameAvailable = async (
   username: string,
@@ -13,6 +10,13 @@ export const UsernameAvailable = async (
     method: "GET",
     route: `${endpoint}/${username}/available`,
   });
-  console.log(response);
   return response;
+};
+
+export const createUser = async (data: CreateUser): Promise<void> => {
+  await callApi({
+    method: "POST",
+    route: endpoint,
+    data,
+  });
 };

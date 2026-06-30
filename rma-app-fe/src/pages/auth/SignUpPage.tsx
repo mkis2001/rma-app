@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -9,7 +10,8 @@ import { FormButton } from "../../components/pressable/formButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { Header } from "../../components/typography/header";
 import { supabase } from "../../services/Supabase";
-import { UsernameAvailable } from "../../services/UserService";
+import { createUser, UsernameAvailable } from "../../services/UserService";
+import { CreateUser } from "../../types/userTypes";
 
 type SignUpData = {
   email: string;
@@ -23,6 +25,21 @@ export const SignUpPage = ({ back }: { back: () => void }) => {
   const [isLoading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [modalDescription, setModalDescription] = useState("");
+
+  const createUserMutation = useMutation({
+    mutationFn: (data: CreateUser) => {
+      setLoading(true);
+      return createUser(data);
+    },
+    onSuccess: () => {
+      setLoading(false);
+    },
+    onError: (error: any) => {
+      setModalDescription(error.message);
+      setIsOpen(true);
+      setLoading(false);
+    },
+  });
 
   const signUpWithEmail = async (data: SignUpData) => {
     if (data.password !== data.confirmPassword) {
@@ -47,8 +64,11 @@ export const SignUpPage = ({ back }: { back: () => void }) => {
       setModalDescription(error.message);
       setIsOpen(true);
     }
-    if (signInData) {
-      console.log(signInData);
+    if (signInData && signInData.user) {
+      createUserMutation.mutate({
+        id: signInData.user.id,
+        username: data.username,
+      });
     }
     setLoading(false);
   };

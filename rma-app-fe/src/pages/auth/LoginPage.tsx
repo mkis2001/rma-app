@@ -4,6 +4,7 @@ import { View } from "react-native";
 import { FormContainer } from "../../components/form/formContainer";
 import { FormTextInput } from "../../components/form/formTextInput";
 import { LoadingScreen } from "../../components/LoadingScreen";
+import { AlertModal } from "../../components/modal/AlertModal";
 import { FormButton } from "../../components/pressable/formButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { Header } from "../../components/typography/header";
@@ -17,6 +18,8 @@ type LoginData = {
 export const LoginPage = ({ back }: { back: () => void }) => {
   const { control, handleSubmit } = useForm<LoginData>();
   const [isLoading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalDescription, setModalDescription] = useState("");
 
   const logInWithEmail = async (data: LoginData) => {
     setLoading(true);
@@ -24,6 +27,10 @@ export const LoginPage = ({ back }: { back: () => void }) => {
       email: data.email,
       password: data.password,
     });
+    if (error) {
+      setModalDescription(error.message);
+      setIsOpen(true);
+    }
     setLoading(false);
   };
 
@@ -53,6 +60,13 @@ export const LoginPage = ({ back }: { back: () => void }) => {
           onPress={handleSubmit(logInWithEmail)}
         />
       </FormContainer>
+
+      <AlertModal
+        title="Error"
+        description={modalDescription}
+        isOpen={isOpen}
+        handleClose={() => setIsOpen(false)}
+      />
     </View>
   );
 };
