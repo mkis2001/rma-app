@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional
 
 from pydantic import Field
@@ -27,3 +28,9 @@ class ArtistResponse(ArtistShortResponse):
 
     description: str | None = Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
     users: Optional[list[UserBase]] = Field(default_factory=list)
+
+
+class ArtistAddUserRequest(ApiBaseModel):
+    """Model for adding a user to an artist."""
+
+    user_id: uuid.UUID

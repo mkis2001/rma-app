@@ -1,25 +1,25 @@
 import { ArtistShort } from "./artistTypes";
 
-export interface ProjectType {
+export type ProjectType = {
   id: number;
   name: string;
-}
-export interface Project {
+};
+export type Project = {
   id: number;
   name: string;
   type: ProjectType;
   description: string;
   artist: ArtistShort;
-}
+};
 
-export interface ProjectShort {
+export type ProjectShort = {
   id: number;
   name: string;
-}
+};
 
-export interface CreateProject {
+export type CreateProject = {
   name: string;
   typeId: number;
   description?: string;
   artistId: number;
-}
+};
