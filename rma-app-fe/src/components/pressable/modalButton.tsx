@@ -24,7 +24,6 @@ export const ModalButton = ({
       borderRadius: measures.radius,
       justifyContent: "space-between",
       flexDirection: "column",
-      marginRight: 10,
     },
     buttonRow: {
       display: "flex",

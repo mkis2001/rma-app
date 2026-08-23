@@ -19,11 +19,13 @@ export const SongsPage = () => {
     queryFn: () => getSongs(),
   });
 
-  return isLoading ? (
-    <LoadingScreen />
-  ) : (
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
     <View style={{ flex: 1 }}>
-      <Header title="Songs" type="h1" />
+      <Header title="Songs" />
       <ScrollableView>
         {songs?.map((song) => (
           <MenuItem

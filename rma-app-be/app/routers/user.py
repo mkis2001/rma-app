@@ -9,6 +9,15 @@ from app.db.user import User
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+@router.get("/", status_code=status.HTTP_200_OK)
+def get_user(username: str, db: Session = Depends(get_db)):
+    """Endpoint for getting all users."""
+
+    users = db.scalars(select(User).where(User.username.ilike(f"%{username}%"))).all()
+
+    return users
+
+
 @router.get("/{username}/available", status_code=status.HTTP_200_OK)
 def check_username(username: str, db: Session = Depends(get_db)):
     """Endpoint for getting a user by username."""

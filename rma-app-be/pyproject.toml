@@ -13,7 +13,9 @@ dependencies = [
     "pydantic (>=2.13.4,<3.0.0)",
     "sqlalchemy (>=2.0.50,<3.0.0)",
     "python-dotenv (>=1.2.2,<2.0.0)",
-    "psycopg2 (>=2.9.12,<3.0.0)"
+    "psycopg2 (>=2.9.12,<3.0.0)",
+    "pyjwt (>=2.13.0,<3.0.0)",
+    "cryptography (>=49.0.0,<50.0.0)"
 ]
 
 [dependency-groups]
@@ -25,7 +27,7 @@ dev = [
 
 
 [tool.ruff]
-line-length = 88
+line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]

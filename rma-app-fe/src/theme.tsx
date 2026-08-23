@@ -1,3 +1,5 @@
+import { StyleSheet } from "react-native";
+
 // https://coolors.co/f6efe2-e8d3b0-242321-403e3b-0d825d-074a35-d44d5c-c53041
 export const colors = {
   background: "#f6efe2",
@@ -26,3 +28,12 @@ export const measures = {
   padding: 12,
   borderWidth: 5,
 };
+
+export const inputStyles = StyleSheet.create({
+  textInput: {
+    fontFamily: typography.fontFamily,
+    fontSize: typography.fontSize,
+    borderBottomColor: colors.text,
+    borderBottomWidth: 2,
+  },
+});

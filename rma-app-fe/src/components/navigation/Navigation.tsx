@@ -1,6 +1,10 @@
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View } from "react-native";
+import { ArtistForm } from "../../pages/artist/ArtistForm";
+import { ArtistManageUsers } from "../../pages/artist/ArtistManageUsers";
+import { ArtistPage } from "../../pages/artist/ArtistPage";
+import { ArtistsPage } from "../../pages/artist/ArtistsPage";
 import { MainMenu } from "../../pages/main-menu/MainMenu";
 import { ProjectForm } from "../../pages/project/ProjectForm";
 import { ProjectPage } from "../../pages/project/ProjectPage";
@@ -8,11 +12,16 @@ import { ProjectsPage } from "../../pages/project/ProjectsPage";
 import { SongForm } from "../../pages/song/SongForm";
 import { SongPage } from "../../pages/song/SongPage";
 import { SongsPage } from "../../pages/song/SongsPage";
+import { Artist } from "../../types/artistTypes";
 import { Project } from "../../types/projectTypes";
 import { Song } from "../../types/songTypes";
 
 export type RootStackParamList = {
   MainMenu: undefined;
+  ArtistsPage: undefined;
+  ArtistPage: { artist: Artist };
+  ArtistForm: { type: "create" | "edit" };
+  ArtistManageUsers: { artist: Artist };
   ProjectsPage: undefined;
   ProjectPage: { project: Project };
   ProjectForm: { type: "create" | "edit" };
@@ -68,6 +77,27 @@ export const Navigation = () => {
           <RootStack.Screen
             name="SongForm"
             component={SongForm}
+            options={{ animation: "slide_from_right" }}
+          />
+          {/* ARTIST */}
+          <RootStack.Screen
+            name="ArtistsPage"
+            component={ArtistsPage}
+            options={{ animation: "slide_from_right" }}
+          />
+          <RootStack.Screen
+            name="ArtistPage"
+            component={ArtistPage}
+            options={{ animation: "slide_from_right" }}
+          />
+          <RootStack.Screen
+            name="ArtistManageUsers"
+            component={ArtistManageUsers}
+            options={{ animation: "slide_from_right" }}
+          />
+          <RootStack.Screen
+            name="ArtistForm"
+            component={ArtistForm}
             options={{ animation: "slide_from_right" }}
           />
         </RootStack.Navigator>

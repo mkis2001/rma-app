@@ -1,7 +1,19 @@
-import { CreateUser, UsernameAvailableResponse } from "../types/userTypes";
+import {
+  CreateUser,
+  User,
+  UsernameAvailableResponse,
+} from "../types/userTypes";
 import { callApi } from "./DataService";
 
 const endpoint = "users";
+
+export const getUsersByUsername = async (username: string): Promise<User[]> => {
+  const users = await callApi({
+    method: "GET",
+    route: `${endpoint}?username=${username}`,
+  });
+  return users;
+};
 
 export const UsernameAvailable = async (
   username: string,

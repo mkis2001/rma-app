@@ -1,6 +1,6 @@
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import { StyleSheet, TextInput } from "react-native";
-import { colors, typography } from "../../theme";
+import { colors, inputStyles, typography } from "../../theme";
 import { Label } from "../typography/label";
 
 type FormTextInputProps<T extends FieldValues> = {
@@ -29,7 +29,7 @@ export const FormTextInput = <T extends FieldValues>({
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            style={styles.input}
+            style={inputStyles.textInput}
             placeholder={placeholder}
             value={value}
             onBlur={onBlur}
