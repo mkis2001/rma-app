@@ -23,7 +23,7 @@ type Props = {
 export const ArtistManageUsers = ({ route }: Props) => {
   const { artist } = route.params;
   const claims = useContext(UserContext);
-  const currentUserId = claims?.id;
+  const currentUserId = claims?.sub;
 
   const [users, setUsers] = useState(
     artist.users.filter((user) => user.id !== currentUserId),

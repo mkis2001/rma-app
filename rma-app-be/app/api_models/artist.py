@@ -30,6 +30,13 @@ class ArtistResponse(ArtistShortResponse):
     users: Optional[list[UserBase]] = Field(default_factory=list)
 
 
+class ArtistCreateRequest(ApiBaseModel):
+    """Model for creating an artist."""
+
+    name: str = Field(max_length=NAME_MAX_LENGTH)
+    description: str | None = Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
+
+
 class ArtistAddUserRequest(ApiBaseModel):
     """Model for adding a user to an artist."""
 

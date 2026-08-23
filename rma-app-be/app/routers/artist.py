@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api_models.artist import (
     ArtistAddUserRequest,
+    ArtistCreateRequest,
     ArtistResponse,
     ArtistShortResponse,
 )
@@ -17,9 +18,7 @@ router = APIRouter(prefix="/artists", tags=["artists"])
 
 
 @router.get("/short", response_model=list[ArtistShortResponse])
-def get_artists_short(
-    db: Session = Depends(get_db), user: User = Depends(get_current_user)
-):
+def get_artists_short(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """Endpoint for getting all artists belonging to the current user."""
 
     artists = db.scalars(
@@ -53,17 +52,36 @@ def get_artist(
     """Endpoint for getting a specific artist by id belonging to the current user."""
 
     artist = db.scalars(
-        select(Artist)
-        .join(UserArtist)
-        .where(Artist.id == artist_id, UserArtist.user_id == user.id)
+        select(Artist).join(UserArtist).where(Artist.id == artist_id, UserArtist.user_id == user.id)
     ).first()
 
     return artist
 
 
-@router.patch(
-    "/{artist_id}/users", status_code=status.HTTP_200_OK, response_model=ArtistResponse
-)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=ArtistResponse)
+def create_artist(
+    request: ArtistCreateRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for creating a new artist. The current user is automatically added as a member."""
+
+    artist = Artist(
+        name=request.name,
+        description=request.description,
+    )
+    db.add(artist)
+    db.flush()
+
+    association = UserArtist(user_id=user.id, artist_id=artist.id)
+    db.add(association)
+    db.commit()
+    db.refresh(artist)
+
+    return artist
+
+
+@router.patch("/{artist_id}/users", status_code=status.HTTP_200_OK, response_model=ArtistResponse)
 def add_user_to_artist(
     artist_id: int,
     request: ArtistAddUserRequest,
@@ -144,9 +162,7 @@ def remove_user_from_artist(
         )
 
     association = db.scalars(
-        select(UserArtist).where(
-            UserArtist.user_id == user_id, UserArtist.artist_id == artist_id
-        )
+        select(UserArtist).where(UserArtist.user_id == user_id, UserArtist.artist_id == artist_id)
     ).first()
 
     if not association:

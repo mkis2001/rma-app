@@ -11,3 +11,8 @@ export type Artist = {
   description: string;
   users: User[];
 };
+
+export type CreateArtist = {
+  name: string;
+  description?: string;
+};
