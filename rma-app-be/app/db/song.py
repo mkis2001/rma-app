@@ -17,3 +17,4 @@ class Song(Base):
     lyrics: Mapped[Optional[str]] = mapped_column(String(25000))
     project_id: Mapped[int] = mapped_column(ForeignKey("Project.id"))
     project: Mapped["Project"] = relationship(back_populates="songs")  # pyright: ignore[reportUndefinedVariable] # noqa: F821
+    song_files: Mapped[list["SongFile"]] = relationship(back_populates="song")  # pyright: ignore[reportUndefinedVariable] # noqa: F821

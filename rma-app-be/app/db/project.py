@@ -24,4 +24,5 @@ class Project(Base):
     description: Mapped[Optional[str]] = mapped_column(String(DESCRIPTION_MAX_LENGTH))
     artist_id: Mapped[int] = mapped_column(ForeignKey("Artist.id"))
     artist: Mapped["Artist"] = relationship()
+    image_path: Mapped[Optional[str]] = mapped_column(String(512), default=None)
     songs: Mapped[list["Song"]] = relationship(back_populates="project")  # pyright: ignore[reportUndefinedVariable] # noqa: F821
