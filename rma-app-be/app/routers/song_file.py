@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -91,5 +92,103 @@ async def upload_song_file(
     db.add(db_file)
     db.commit()
     db.refresh(db_file)
+
+    return db_file
+
+
+
+@router.get("/{file_id}", status_code=status.HTTP_200_OK)
+def download_song_file(
+    song_id: int,
+    file_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for downloading a specific file from a song."""
+
+    song = db.scalar(
+        select(Song)
+        .join(Project, Song.project_id == Project.id)
+        .join(Artist, Project.artist_id == Artist.id)
+        .join(UserArtist, UserArtist.artist_id == Artist.id)
+        .where(Song.id == song_id, UserArtist.user_id == user.id)
+    )
+
+    if not song:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Song not found.",
+        )
+
+    db_file = db.scalar(
+        select(SongFile).where(SongFile.id == file_id, SongFile.song_id == song_id)
+    )
+
+    if not db_file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found.",
+        )
+
+    try:
+        data = supabase.storage.from_(SONG_FILES_BUCKET_NAME).download(db_file.path)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to download file: {e}",
+        )
+
+    return Response(
+        content=data,
+        media_type=db_file.mime_type,
+        headers={"Content-Disposition": f'attachment; filename="{db_file.name}"'},
+    )
+
+
+@router.delete(
+    "/{file_id}", status_code=status.HTTP_200_OK, response_model=SongFileResponse
+)
+def delete_song_file(
+    song_id: int,
+    file_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for deleting a file from a song."""
+
+    song = db.scalar(
+        select(Song)
+        .join(Project, Song.project_id == Project.id)
+        .join(Artist, Project.artist_id == Artist.id)
+        .join(UserArtist, UserArtist.artist_id == Artist.id)
+        .where(Song.id == song_id, UserArtist.user_id == user.id)
+    )
+
+    if not song:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Song not found.",
+        )
+
+    db_file = db.scalar(
+        select(SongFile).where(SongFile.id == file_id, SongFile.song_id == song_id)
+    )
+
+    if not db_file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found.",
+        )
+
+    try:
+        supabase.storage.from_(SONG_FILES_BUCKET_NAME).remove([db_file.path])
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete file: {e}",
+        )
+
+    db.delete(db_file)
+    db.commit()
 
     return db_file

@@ -36,7 +36,6 @@ export const callApi = async ({ method, route, data }: CallApiProps) => {
   return res;
 };
 
-
 export const callApiBinary = async (route: string): Promise<string | null> => {
   const url = `${BASE_URL}/${route}`;
   console.log(`GET /${route} (binary)`);
