@@ -19,7 +19,7 @@ export const Pressable = ({
   shadowColor = colors.text,
 }: {
   onPress?: () => void;
-  title: string;
+  title?: string;
   secondaryTitle?: string;
   icon?: React.ComponentProps<typeof FontAwesome6>["name"];
   color?: string;

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 import { LoadingScreen } from "../../components/LoadingScreen";
 import { RootStackParamList } from "../../components/navigation/Navigation";
+import { IconButton } from "../../components/pressable/IconButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { ScrollableView } from "../../components/ScrollableView";
 import { Header } from "../../components/typography/header";
@@ -34,11 +35,12 @@ export const ProjectsPage = () => {
           />
         ))}
       </ScrollableView>
-      <MenuItem
-        title="Start a new project"
-        icon="circle-plus"
-        onPress={() => navigation.navigate("ProjectForm", { type: "create" })}
-      />
+      <View style={{ display: "flex", alignItems: "flex-end" }}>
+        <IconButton
+          icon="plus"
+          onPress={() => navigation.navigate("ProjectForm", { type: "create" })}
+        />
+      </View>
     </View>
   );
 };

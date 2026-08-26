@@ -234,3 +234,50 @@ def get_project_image(
         content_type = "image/webp"
 
     return Response(content=data, media_type=content_type)
+
+
+
+@router.delete(
+    "/{project_id}/image",
+    status_code=status.HTTP_200_OK,
+    response_model=ProjectResponse,
+)
+def delete_project_image(
+    project_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for removing a project's cover image."""
+
+    project = db.scalar(
+        select(Project)
+        .join(Artist, Project.artist_id == Artist.id)
+        .join(UserArtist, UserArtist.artist_id == Artist.id)
+        .where(UserArtist.user_id == user.id, Project.id == project_id)
+    )
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found.",
+        )
+
+    if not project.image_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project has no image.",
+        )
+
+    try:
+        supabase.storage.from_(PROJECT_IMAGE_BUCKET_NAME).remove([project.image_path])
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete image: {e}",
+        )
+
+    project.image_path = None
+    db.commit()
+    db.refresh(project)
+
+    return project
