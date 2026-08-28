@@ -11,6 +11,8 @@ export const colors = {
   accentDarker: "#074A35",
   error: "#D44D5C",
   errorDarker: "#C53041",
+  blue: "#0f6081",
+  orange: "#c56c30",
 };
 
 export const typography = {

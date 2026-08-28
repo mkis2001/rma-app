@@ -20,3 +20,11 @@ export type CreateSong = {
   lyrics: string;
   projectId: number;
 };
+
+export type SongFile = {
+  id: number;
+  name: string;
+  songId: number;
+  path: string;
+  mimeType: string;
+};
