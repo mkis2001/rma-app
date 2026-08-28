@@ -5,7 +5,7 @@ import {
   ProjectType,
 } from "../types/projectTypes";
 import { SongShort } from "../types/songTypes";
-import { callApi } from "./DataService";
+import { callApi, callApiBinary, callApiUpload } from "./DataService";
 
 const endpoint = "projects";
 
@@ -35,7 +35,37 @@ export const getProjectSongs = async (id: number): Promise<SongShort[]> => {
   return songs;
 };
 
+export const getProjectImage = async (
+  id: number,
+): Promise<string | null> => {
+  const imageUrl = await callApiBinary(`${endpoint}/${id}/image`);
+  return imageUrl;
+};
+
 export const createProject = async (data: CreateProject) => {
   const project = await callApi({ method: "POST", route: endpoint, data });
+  return project;
+};
+
+export const uploadProjectImage = async (
+  id: number,
+  fileUri: string,
+  fileName: string,
+  mimeType: string,
+): Promise<Project> => {
+  const project = await callApiUpload(
+    `${endpoint}/${id}/image`,
+    fileUri,
+    fileName,
+    mimeType,
+  );
+  return project;
+};
+
+export const deleteProjectImage = async (id: number): Promise<Project> => {
+  const project = await callApi({
+    method: "DELETE",
+    route: `${endpoint}/${id}/image`,
+  });
   return project;
 };

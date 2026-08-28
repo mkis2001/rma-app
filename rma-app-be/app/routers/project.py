@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -10,6 +11,7 @@ from app.api_models.project import (
 )
 from app.api_models.song import SongShortResponse
 from app.auth import get_current_user
+from app.constants import PROJECT_IMAGE_BUCKET_NAME
 from app.database import get_db
 from app.db.artist import Artist
 from app.db.project import Project
@@ -19,6 +21,7 @@ from app.db.song import (
 )
 from app.db.user import User
 from app.db.user_artist import UserArtist
+from app.storage import supabase
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -37,12 +40,8 @@ def get_projects(db: Session = Depends(get_db), user: User = Depends(get_current
     return projects
 
 
-@router.get(
-    "/short", status_code=status.HTTP_200_OK, response_model=list[ProjectResponseShort]
-)
-def get_projects_short(
-    db: Session = Depends(get_db), user: User = Depends(get_current_user)
-):
+@router.get("/short", status_code=status.HTTP_200_OK, response_model=list[ProjectResponseShort])
+def get_projects_short(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """Endpoint for getting all projects belonging to the current user."""
 
     projects = db.scalars(
@@ -135,3 +134,150 @@ def create_project(
     db.refresh(db_project)
 
     return db_project
+
+
+@router.post(
+    "/{project_id}/image",
+    status_code=status.HTTP_200_OK,
+    response_model=ProjectResponse,
+)
+async def upload_project_image(
+    project_id: int,
+    file: UploadFile,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for uploading a cover image for a project."""
+
+    project = db.scalar(
+        select(Project)
+        .join(Artist, Project.artist_id == Artist.id)
+        .join(UserArtist, UserArtist.artist_id == Artist.id)
+        .where(UserArtist.user_id == user.id, Project.id == project_id)
+    )
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found.",
+        )
+
+    # Delete existing image if one exists
+    if project.image_path:
+        try:
+            supabase.storage.from_(PROJECT_IMAGE_BUCKET_NAME).remove([project.image_path])
+        except Exception:
+            pass
+
+    content = await file.read()
+    storage_path = f"projects/{project_id}/{file.filename}"
+
+    try:
+        supabase.storage.from_(PROJECT_IMAGE_BUCKET_NAME).upload(
+            storage_path,
+            content,
+            {"content-type": file.content_type},
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload image: {e}",
+        )
+
+    project.image_path = storage_path
+    db.commit()
+    db.refresh(project)
+
+    return project
+
+
+@router.get("/{project_id}/image", status_code=status.HTTP_200_OK)
+def get_project_image(
+    project_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for downloading a project's cover image."""
+
+    project = db.scalar(
+        select(Project)
+        .join(Artist, Project.artist_id == Artist.id)
+        .join(UserArtist, UserArtist.artist_id == Artist.id)
+        .where(UserArtist.user_id == user.id, Project.id == project_id)
+    )
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found.",
+        )
+
+    if not project.image_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project has no image.",
+        )
+
+    try:
+        data = supabase.storage.from_(PROJECT_IMAGE_BUCKET_NAME).download(project.image_path)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to download image: {e}",
+        )
+
+    # Infer content type from the stored path extension
+    content_type = "image/jpeg"
+    if project.image_path.endswith(".png"):
+        content_type = "image/png"
+    elif project.image_path.endswith(".webp"):
+        content_type = "image/webp"
+
+    return Response(content=data, media_type=content_type)
+
+
+
+@router.delete(
+    "/{project_id}/image",
+    status_code=status.HTTP_200_OK,
+    response_model=ProjectResponse,
+)
+def delete_project_image(
+    project_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for removing a project's cover image."""
+
+    project = db.scalar(
+        select(Project)
+        .join(Artist, Project.artist_id == Artist.id)
+        .join(UserArtist, UserArtist.artist_id == Artist.id)
+        .where(UserArtist.user_id == user.id, Project.id == project_id)
+    )
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found.",
+        )
+
+    if not project.image_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project has no image.",
+        )
+
+    try:
+        supabase.storage.from_(PROJECT_IMAGE_BUCKET_NAME).remove([project.image_path])
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete image: {e}",
+        )
+
+    project.image_path = None
+    db.commit()
+    db.refresh(project)
+
+    return project

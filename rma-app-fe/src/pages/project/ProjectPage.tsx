@@ -1,11 +1,13 @@
 import { RouteProp } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { LoadingScreen } from "../../components/LoadingScreen";
+import { Chip } from "../../components/chip/Chip";
 import { RootStackParamList } from "../../components/navigation/Navigation";
 import { BoldText } from "../../components/typography/boldText";
 import { RegularText } from "../../components/typography/regularText";
 import { getProjectSongs } from "../../services/ProjectService";
+import { ProjectImage } from "./ProjectImage";
 
 type Props = {
   route: RouteProp<RootStackParamList, "ProjectPage">;
@@ -23,8 +25,14 @@ export const ProjectPage = ({ route }: Props) => {
     <LoadingScreen />
   ) : (
     <View>
-      <BoldText>{project.name}</BoldText>
-      <BoldText>{project.type.name}</BoldText>
+      <View style={styles.headerRow}>
+        <View style={styles.headerLeft}>
+          <BoldText>{project.name}</BoldText>
+          <RegularText>{project.artist.name}</RegularText>
+          <Chip label={project.type.name} />
+        </View>
+        <ProjectImage projectId={project.id} />
+      </View>
       <RegularText>{project.description}</RegularText>
       {songs?.map((song) => (
         <View key={song.id}>
@@ -34,3 +42,15 @@ export const ProjectPage = ({ route }: Props) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 20,
+  },
+  headerLeft: {
+    flex: 1,
+    gap: 5,
+  },
+});

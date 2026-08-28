@@ -11,10 +11,11 @@ import { ProjectPage } from "../../pages/project/ProjectPage";
 import { ProjectsPage } from "../../pages/project/ProjectsPage";
 import { SongForm } from "../../pages/song/SongForm";
 import { SongPage } from "../../pages/song/SongPage";
+import { SongFilesPage } from "../../pages/song/SongFilesPage";
 import { SongsPage } from "../../pages/song/SongsPage";
 import { Artist } from "../../types/artistTypes";
 import { Project } from "../../types/projectTypes";
-import { Song } from "../../types/songTypes";
+import { Song, SongFile } from "../../types/songTypes";
 
 export type RootStackParamList = {
   MainMenu: undefined;
@@ -28,6 +29,7 @@ export type RootStackParamList = {
   SongsPage: undefined;
   SongPage: { song: Song };
   SongForm: { type: "create" | "edit" };
+  SongFilesPage: { song: Song; files: SongFile[] };
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -77,6 +79,11 @@ export const Navigation = () => {
           <RootStack.Screen
             name="SongForm"
             component={SongForm}
+            options={{ animation: "slide_from_right" }}
+          />
+          <RootStack.Screen
+            name="SongFilesPage"
+            component={SongFilesPage}
             options={{ animation: "slide_from_right" }}
           />
           {/* ARTIST */}

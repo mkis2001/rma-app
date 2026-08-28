@@ -5,6 +5,7 @@ import { View } from "react-native";
 import { LoadingScreen } from "../../components/LoadingScreen";
 import { ScrollableView } from "../../components/ScrollableView";
 import { RootStackParamList } from "../../components/navigation/Navigation";
+import { IconButton } from "../../components/pressable/IconButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { Header } from "../../components/typography/header";
 import { getArtists } from "../../services/ArtistService";
@@ -38,12 +39,13 @@ export const ArtistsPage = () => {
             onPress={() => navigation.navigate("ArtistPage", { artist })}
           />
         ))}
-        <MenuItem
-          title="Create a new artist"
-          icon="circle-plus"
+      </ScrollableView>
+      <View style={{ display: "flex", alignItems: "flex-end" }}>
+        <IconButton
+          icon="plus"
           onPress={() => navigation.navigate("ArtistForm", { type: "create" })}
         />
-      </ScrollableView>
+      </View>
     </View>
   );
 };
