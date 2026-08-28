@@ -26,7 +26,7 @@ export const SongPage = ({ route }: Props) => {
     <View>
       <BoldText>{song.name}</BoldText>
       <BoldText>{song.project?.name}</BoldText>
-      <Lyrics lyrics={song.lyrics} />
+      {song.lyrics && <Lyrics lyrics={song.lyrics} />}
       <MenuItem
         title="Song Files"
         secondaryTitle={`${files?.length ?? 0} ${files?.length != undefined && files?.length % 10 === 1 ? "file" : "files"}`}

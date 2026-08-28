@@ -3,7 +3,7 @@ import { File as ExpoFile, Paths } from "expo-file-system";
 import { StorageAccessFramework } from "expo-file-system/legacy";
 import * as IntentLauncher from "expo-intent-launcher";
 import { CreateSong, Song, SongFile } from "../types/songTypes";
-import { callApi } from "./DataService";
+import { callApi, callApiUpload } from "./DataService";
 import { supabase } from "./Supabase";
 
 const endpoint = "songs";
@@ -31,6 +31,32 @@ export const getSongFiles = async (songId: number): Promise<SongFile[]> => {
     route: `${endpoint}/${songId}/files/`,
   });
   return files;
+};
+
+export const uploadSongFile = async (
+  songId: number,
+  fileUri: string,
+  fileName: string,
+  mimeType: string,
+): Promise<SongFile> => {
+  const file = await callApiUpload(
+    `${endpoint}/${songId}/files/`,
+    fileUri,
+    fileName,
+    mimeType,
+  );
+  return file;
+};
+
+export const deleteSongFile = async (
+  songId: number,
+  fileId: number,
+): Promise<SongFile> => {
+  const file = await callApi({
+    method: "DELETE",
+    route: `${endpoint}/${songId}/files/${fileId}`,
+  });
+  return file;
 };
 
 const isOpenable = (mimeType: string): boolean => {

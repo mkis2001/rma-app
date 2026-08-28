@@ -8,7 +8,7 @@ import { BoldText } from "../typography/boldText";
 import { RegularText } from "../typography/regularText";
 
 const mediaType: { [key: string]: { name: string; color: string } } = {
-  video: { name: "Video", color: colors.textLighter },
+  video: { name: "Video", color: colors.accent },
   audio: { name: "Audio", color: colors.orange },
   "application/pdf": { name: "PDF", color: colors.error },
   "application/octet-stream": { name: "Application", color: colors.blue },
@@ -23,11 +23,13 @@ const getMediaType = (mimeType: string): { name: string; color: string } => {
 
 export const FileItem = ({
   onPress,
+  onLongPress,
   title,
   mimeType,
   icon,
 }: {
   onPress?: () => void;
+  onLongPress?: () => void;
   title: string;
   mimeType: string;
   icon?: React.ComponentProps<typeof FontAwesome6>["name"];
@@ -52,6 +54,7 @@ export const FileItem = ({
       )}
       transition={{ type: "spring", duration: 150 }}
       onPress={onPress}
+      onLongPress={onLongPress}
     >
       <View style={styles.contentRow}>
         <View style={styles.textContainer}>
