@@ -21,6 +21,12 @@ export type CreateSong = {
   projectId: number;
 };
 
+export type UpdateSong = {
+  name?: string;
+  lyrics?: string;
+  projectId?: number;
+};
+
 export type SongFile = {
   id: number;
   name: string;

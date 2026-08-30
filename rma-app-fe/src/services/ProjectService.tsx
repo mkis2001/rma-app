@@ -3,6 +3,7 @@ import {
   Project,
   ProjectShort,
   ProjectType,
+  UpdateProject,
 } from "../types/projectTypes";
 import { SongShort } from "../types/songTypes";
 import { callApi, callApiBinary, callApiUpload } from "./DataService";
@@ -44,6 +45,18 @@ export const getProjectImage = async (
 
 export const createProject = async (data: CreateProject) => {
   const project = await callApi({ method: "POST", route: endpoint, data });
+  return project;
+};
+
+export const updateProject = async (
+  id: number,
+  data: UpdateProject,
+): Promise<Project> => {
+  const project = await callApi({
+    method: "PATCH",
+    route: `${endpoint}/${id}`,
+    data,
+  });
   return project;
 };
 

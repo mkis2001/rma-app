@@ -1,4 +1,5 @@
 import { RouteProp, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,38 +12,54 @@ import { RootStackParamList } from "../../components/navigation/Navigation";
 import { FormButton } from "../../components/pressable/formButton";
 import { Header } from "../../components/typography/header";
 import { getProjectsShort } from "../../services/ProjectService";
-import { createSong } from "../../services/SongService";
-import { CreateSong } from "../../types/songTypes";
+import { createSong, updateSong } from "../../services/SongService";
+import { CreateSong, Song } from "../../types/songTypes";
 
 type SongFormProps = RouteProp<RootStackParamList, "SongForm">;
+
+type SongFormNavigation = NativeStackNavigationProp<
+  RootStackParamList,
+  "SongForm"
+>;
 
 type Props = {
   route: SongFormProps;
 };
 
 export const SongForm = ({ route }: Props) => {
-  const { type } = route.params;
-  const { control, handleSubmit } = useForm<CreateSong>();
-  const queryClient = useQueryClient();
-  const navigation = useNavigation();
+  const params = route.params;
+  const isEdit = params.type === "edit";
+  const song = isEdit ? params.song : undefined;
 
-  const [isCreatingSong, setIsCreatingSong] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const createSongMutation = useMutation({
-    mutationFn: (data: CreateSong) => {
-      setIsCreatingSong(true);
-      return createSong(data);
+  const { control, handleSubmit } = useForm<CreateSong>({
+    defaultValues: {
+      name: song?.name ?? "",
+      lyrics: song?.lyrics ?? "",
+      projectId: song?.project?.id,
     },
-    onSuccess: async () => {
+  });
+  const queryClient = useQueryClient();
+  const navigation = useNavigation<SongFormNavigation>();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [updatedSong, setUpdatedSong] = useState<Song | undefined>();
+
+  const songMutation = useMutation({
+    mutationFn: (data: CreateSong) => {
+      setIsSubmitting(true);
+      return isEdit && song ? updateSong(song.id, data) : createSong(data);
+    },
+    onSuccess: async (result) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["songs"] }),
         queryClient.invalidateQueries({ queryKey: ["projectSongs"] }),
       ]);
+      setUpdatedSong(result);
       setIsOpen(true);
     },
     onSettled: () => {
-      setIsCreatingSong(false);
+      setIsSubmitting(false);
     },
   });
 
@@ -52,20 +69,22 @@ export const SongForm = ({ route }: Props) => {
   });
 
   const onSubmit = (data: CreateSong) => {
-    createSongMutation.mutate(data);
+    songMutation.mutate(data);
   };
+
   const closeModal = () => {
     setIsOpen(false);
-    navigation.goBack();
+    if (isEdit && updatedSong) {
+      navigation.popTo("SongPage", { song: updatedSong });
+    } else {
+      navigation.goBack();
+    }
   };
 
   return (
     !isProjectsLoading && (
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-        <Header
-          title={`${type == "create" ? "Create" : "Edit"} Song`}
-          type="h1"
-        />
+        <Header title={`${isEdit ? "Edit" : "Create"} Song`} type="h1" />
         <FormContainer>
           <FormTextInput
             control={control}
@@ -94,7 +113,7 @@ export const SongForm = ({ route }: Props) => {
           />
         </FormContainer>
         <FormButton
-          title={isCreatingSong ? "Creating..." : "Save"}
+          title={isSubmitting ? "Saving..." : "Save"}
           onPress={handleSubmit(onSubmit)}
           icon="circle-check"
           type="submit"
@@ -104,7 +123,7 @@ export const SongForm = ({ route }: Props) => {
         <SuccessModal
           isOpen={isOpen}
           handleClose={closeModal}
-          title="Song successfully created"
+          title={`Song successfully ${isEdit ? "updated" : "created"}`}
         />
       </KeyboardAwareScrollView>
     )

@@ -1,4 +1,5 @@
 import { RouteProp, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -9,53 +10,71 @@ import { SuccessModal } from "../../components/modal/SuccessModal";
 import { RootStackParamList } from "../../components/navigation/Navigation";
 import { FormButton } from "../../components/pressable/formButton";
 import { Header } from "../../components/typography/header";
-import { createArtist } from "../../services/ArtistService";
-import { CreateArtist } from "../../types/artistTypes";
+import { createArtist, updateArtist } from "../../services/ArtistService";
+import { Artist, CreateArtist } from "../../types/artistTypes";
 
 type ArtistFormProps = RouteProp<RootStackParamList, "ArtistForm">;
+
+type ArtistFormNavigation = NativeStackNavigationProp<
+  RootStackParamList,
+  "ArtistForm"
+>;
 
 type Props = {
   route: ArtistFormProps;
 };
 
 export const ArtistForm = ({ route }: Props) => {
-  const { type } = route.params;
-  const { control, handleSubmit } = useForm<CreateArtist>();
-  const queryClient = useQueryClient();
-  const navigation = useNavigation();
+  const params = route.params;
+  const isEdit = params.type === "edit";
+  const artist = isEdit ? params.artist : undefined;
 
-  const [isCreatingArtist, setIsCreatingArtist] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const createArtistMutation = useMutation({
-    mutationFn: (data: CreateArtist) => {
-      setIsCreatingArtist(true);
-      return createArtist(data);
+  const { control, handleSubmit } = useForm<CreateArtist>({
+    defaultValues: {
+      name: artist?.name ?? "",
+      description: artist?.description ?? "",
     },
-    onSuccess: async () => {
+  });
+  const queryClient = useQueryClient();
+  const navigation = useNavigation<ArtistFormNavigation>();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [updatedArtist, setUpdatedArtist] = useState<Artist | undefined>();
+
+  const artistMutation = useMutation({
+    mutationFn: (data: CreateArtist) => {
+      setIsSubmitting(true);
+      return isEdit && artist
+        ? updateArtist(artist.id, data)
+        : createArtist(data);
+    },
+    onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["artists"] });
+      setUpdatedArtist(result);
       setIsOpen(true);
     },
     onSettled: () => {
-      setIsCreatingArtist(false);
+      setIsSubmitting(false);
     },
   });
 
   const onSubmit = (data: CreateArtist) => {
-    createArtistMutation.mutate(data);
+    artistMutation.mutate(data);
   };
 
   const closeModal = () => {
     setIsOpen(false);
-    navigation.goBack();
+    if (isEdit && updatedArtist) {
+      navigation.popTo("ArtistPage", { artist: updatedArtist });
+    } else {
+      navigation.goBack();
+    }
   };
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-      <Header
-        title={`${type == "create" ? "Create" : "Edit"} Artist`}
-        type="h1"
-      />
+      <Header title={`${isEdit ? "Edit" : "Create"} Artist`} type="h1" />
       <FormContainer>
         <FormTextInput
           control={control}
@@ -72,7 +91,7 @@ export const ArtistForm = ({ route }: Props) => {
         />
       </FormContainer>
       <FormButton
-        title={isCreatingArtist ? "Creating..." : "Save"}
+        title={isSubmitting ? "Saving..." : "Save"}
         onPress={handleSubmit(onSubmit)}
         icon="circle-check"
         type="submit"
@@ -82,7 +101,7 @@ export const ArtistForm = ({ route }: Props) => {
       <SuccessModal
         isOpen={isOpen}
         handleClose={closeModal}
-        title="Artist successfully created"
+        title={`Artist successfully ${isEdit ? "updated" : "created"}`}
       />
     </KeyboardAwareScrollView>
   );

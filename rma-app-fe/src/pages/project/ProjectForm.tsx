@@ -1,4 +1,5 @@
 import { RouteProp, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,38 +12,61 @@ import { RootStackParamList } from "../../components/navigation/Navigation";
 import { FormButton } from "../../components/pressable/formButton";
 import { Header } from "../../components/typography/header";
 import { getArtistsShort } from "../../services/ArtistService";
-import { createProject, getProjectTypes } from "../../services/ProjectService";
-import { CreateProject } from "../../types/projectTypes";
+import {
+  createProject,
+  getProjectTypes,
+  updateProject,
+} from "../../services/ProjectService";
+import { CreateProject, Project } from "../../types/projectTypes";
 
 type ProjectFormProps = RouteProp<RootStackParamList, "ProjectForm">;
+
+type ProjectFormNavigation = NativeStackNavigationProp<
+  RootStackParamList,
+  "ProjectForm"
+>;
 
 type Props = {
   route: ProjectFormProps;
 };
 
 export const ProjectForm = ({ route }: Props) => {
-  const { type } = route.params;
-  const { control, handleSubmit } = useForm<CreateProject>();
-  const queryClient = useQueryClient();
-  const navigation = useNavigation();
+  const params = route.params;
+  const isEdit = params.type === "edit";
+  const project = isEdit ? params.project : undefined;
 
-  const [isCreatingProject, setIsCreatingProject] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const createProjectMutation = useMutation({
-    mutationFn: (data: CreateProject) => {
-      setIsCreatingProject(true);
-      return createProject(data);
+  const { control, handleSubmit } = useForm<CreateProject>({
+    defaultValues: {
+      name: project?.name ?? "",
+      typeId: project?.type?.id,
+      description: project?.description ?? "",
+      artistId: project?.artist?.id,
     },
-    onSuccess: async () => {
+  });
+  const queryClient = useQueryClient();
+  const navigation = useNavigation<ProjectFormNavigation>();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [updatedProject, setUpdatedProject] = useState<Project | undefined>();
+
+  const projectMutation = useMutation({
+    mutationFn: (data: CreateProject) => {
+      setIsSubmitting(true);
+      return isEdit && project
+        ? updateProject(project.id, data)
+        : createProject(data);
+    },
+    onSuccess: async (result) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["projects"] }),
         queryClient.invalidateQueries({ queryKey: ["projectsShort"] }),
       ]);
+      setUpdatedProject(result);
       setIsOpen(true);
     },
     onSettled: () => {
-      setIsCreatingProject(false);
+      setIsSubmitting(false);
     },
   });
 
@@ -56,22 +80,23 @@ export const ProjectForm = ({ route }: Props) => {
   });
 
   const onSubmit = (data: CreateProject) => {
-    createProjectMutation.mutate(data);
+    projectMutation.mutate(data);
   };
 
   const closeModal = () => {
     setIsOpen(false);
-    navigation.goBack();
+    if (isEdit && updatedProject) {
+      navigation.popTo("ProjectPage", { project: updatedProject });
+    } else {
+      navigation.goBack();
+    }
   };
 
   return (
     !isArtistsLoading &&
     !isProjectTypesLoading && (
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-        <Header
-          title={`${type == "create" ? "Create" : "Edit"} Project`}
-          type="h1"
-        />
+        <Header title={`${isEdit ? "Edit" : "Create"} Project`} type="h1" />
         <FormContainer>
           <FormTextInput
             control={control}
@@ -112,7 +137,7 @@ export const ProjectForm = ({ route }: Props) => {
           />
         </FormContainer>
         <FormButton
-          title={isCreatingProject ? "Creating..." : "Save"}
+          title={isSubmitting ? "Saving..." : "Save"}
           onPress={handleSubmit(onSubmit)}
           icon="circle-check"
           type="submit"
@@ -122,7 +147,7 @@ export const ProjectForm = ({ route }: Props) => {
         <SuccessModal
           isOpen={isOpen}
           handleClose={closeModal}
-          title="Project successfully created"
+          title={`Project successfully ${isEdit ? "updated" : "created"}`}
         />
       </KeyboardAwareScrollView>
     )

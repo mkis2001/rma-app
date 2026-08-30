@@ -16,3 +16,8 @@ export type CreateArtist = {
   name: string;
   description?: string;
 };
+
+export type UpdateArtist = {
+  name?: string;
+  description?: string;
+};

@@ -3,6 +3,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { View } from "react-native";
 import { ScrollableView } from "../../components/ScrollableView";
 import { RootStackParamList } from "../../components/navigation/Navigation";
+import { IconButton } from "../../components/pressable/IconButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { BoldText } from "../../components/typography/boldText";
 
@@ -20,7 +21,7 @@ export const ArtistPage = ({ route }: Props) => {
   const { artist } = route.params;
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <BoldText>{artist.name}</BoldText>
       <ScrollableView>
         <BoldText>{artist.description}</BoldText>
@@ -34,6 +35,14 @@ export const ArtistPage = ({ route }: Props) => {
           navigation.navigate("ArtistManageUsers", { artist });
         }}
       />
+      <View style={{ display: "flex", alignItems: "flex-end" }}>
+        <IconButton
+          icon="pen"
+          onPress={() =>
+            navigation.navigate("ArtistForm", { type: "edit", artist })
+          }
+        />
+      </View>
     </View>
   );
 };

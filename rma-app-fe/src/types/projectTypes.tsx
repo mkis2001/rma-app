@@ -23,3 +23,10 @@ export type CreateProject = {
   description?: string;
   artistId: number;
 };
+
+export type UpdateProject = {
+  name?: string;
+  typeId?: number;
+  description?: string;
+  artistId?: number;
+};
