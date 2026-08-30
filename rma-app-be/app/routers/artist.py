@@ -7,6 +7,7 @@ from app.api_models.artist import (
     ArtistCreateRequest,
     ArtistResponse,
     ArtistShortResponse,
+    ArtistUpdateRequest,
 )
 from app.auth import get_current_user
 from app.database import get_db
@@ -75,6 +76,38 @@ def create_artist(
 
     association = UserArtist(user_id=user.id, artist_id=artist.id)
     db.add(association)
+    db.commit()
+    db.refresh(artist)
+
+    return artist
+
+
+@router.patch("/{artist_id}", status_code=status.HTTP_200_OK, response_model=ArtistResponse)
+def update_artist(
+    artist_id: int,
+    artist_update: ArtistUpdateRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for updating an artist (partial update, only artists the user belongs to)."""
+
+    artist = db.scalars(
+        select(Artist)
+        .join(UserArtist)
+        .where(Artist.id == artist_id, UserArtist.user_id == user.id)
+    ).first()
+
+    if not artist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Artist with given ID not found.",
+        )
+
+    update_data = artist_update.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(artist, field, value)
+
     db.commit()
     db.refresh(artist)
 

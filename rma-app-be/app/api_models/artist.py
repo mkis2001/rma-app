@@ -8,13 +8,14 @@ from app.api_models.user import UserBase
 from app.constants import (
     DESCRIPTION_MAX_LENGTH,
     NAME_MAX_LENGTH,
+    NAME_MIN_LENGTH,
 )
 
 
 class ArtistBase(ApiBaseModel):
     """Base model for artist."""
 
-    name: str = Field(max_length=NAME_MAX_LENGTH)
+    name: str = Field(min_length=NAME_MIN_LENGTH, max_length=NAME_MAX_LENGTH)
 
 
 class ArtistShortResponse(ArtistBase):
@@ -33,8 +34,17 @@ class ArtistResponse(ArtistShortResponse):
 class ArtistCreateRequest(ApiBaseModel):
     """Model for creating an artist."""
 
-    name: str = Field(max_length=NAME_MAX_LENGTH)
+    name: str = Field(min_length=NAME_MIN_LENGTH, max_length=NAME_MAX_LENGTH)
     description: str | None = Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
+
+
+class ArtistUpdateRequest(ApiBaseModel):
+    """Model for updating an artist."""
+
+    name: Optional[str] = Field(
+        default=None, min_length=NAME_MIN_LENGTH, max_length=NAME_MAX_LENGTH
+    )
+    description: Optional[str] = Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
 
 
 class ArtistAddUserRequest(ApiBaseModel):

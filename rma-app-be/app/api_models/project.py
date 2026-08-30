@@ -7,6 +7,7 @@ from app.api_models.base import ApiBaseModel
 from app.constants import (
     DESCRIPTION_MAX_LENGTH,
     NAME_MAX_LENGTH,
+    NAME_MIN_LENGTH,
 )
 
 
@@ -41,6 +42,18 @@ class ProjectResponse(ProjectBase):
 class ProjectCreateRequest(ProjectBase):
     """Model for create project request."""
 
+    name: str = Field(min_length=NAME_MIN_LENGTH, max_length=NAME_MAX_LENGTH)
     type_id: int
     description: Optional[str] = Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
     artist_id: int
+
+
+class ProjectUpdateRequest(ApiBaseModel):
+    """Model for update project request."""
+
+    name: Optional[str] = Field(
+        default=None, min_length=NAME_MIN_LENGTH, max_length=NAME_MAX_LENGTH
+    )
+    type_id: Optional[int] = None
+    description: Optional[str] = Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
+    artist_id: Optional[int] = None

@@ -8,6 +8,7 @@ from app.api_models.project import (
     ProjectResponse,
     ProjectResponseShort,
     ProjectTypeResponse,
+    ProjectUpdateRequest,
 )
 from app.api_models.song import SongShortResponse
 from app.auth import get_current_user
@@ -136,6 +137,62 @@ def create_project(
     return db_project
 
 
+@router.patch(
+    "/{project_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=ProjectResponse,
+)
+def update_project(
+    project_id: int,
+    project_update: ProjectUpdateRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Endpoint for updating a project (partial update, only owned projects)."""
+
+    project = db.scalar(
+        select(Project)
+        .join(Artist, Project.artist_id == Artist.id)
+        .join(UserArtist, UserArtist.artist_id == Artist.id)
+        .where(UserArtist.user_id == user.id, Project.id == project_id)
+    )
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found.",
+        )
+
+    update_data = project_update.model_dump(exclude_unset=True)
+
+    if "type_id" in update_data and not db.get(ProjectType, update_data["type_id"]):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project type with given ID not found.",
+        )
+
+    if "artist_id" in update_data:
+        artist = db.scalar(
+            select(Artist)
+            .join(UserArtist, UserArtist.artist_id == Artist.id)
+            .where(UserArtist.user_id == user.id, Artist.id == update_data["artist_id"])
+        )
+
+        if not artist:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Artist with given ID not found.",
+            )
+
+    for field, value in update_data.items():
+        setattr(project, field, value)
+
+    db.commit()
+    db.refresh(project)
+
+    return project
+
+
 @router.post(
     "/{project_id}/image",
     status_code=status.HTTP_200_OK,
@@ -234,7 +291,6 @@ def get_project_image(
         content_type = "image/webp"
 
     return Response(content=data, media_type=content_type)
-
 
 
 @router.delete(
