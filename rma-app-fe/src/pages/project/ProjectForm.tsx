@@ -18,6 +18,11 @@ import {
   updateProject,
 } from "../../services/ProjectService";
 import { CreateProject, Project } from "../../types/projectTypes";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+} from "../../constants";
 
 type ProjectFormProps = RouteProp<RootStackParamList, "ProjectForm">;
 
@@ -71,7 +76,7 @@ export const ProjectForm = ({ route }: Props) => {
   });
 
   const { data: artists, isLoading: isArtistsLoading } = useQuery({
-    queryKey: ["artists"],
+    queryKey: ["artistsShort"],
     queryFn: () => getArtistsShort(),
   });
   const { data: projectTypes, isLoading: isProjectTypesLoading } = useQuery({
@@ -103,12 +108,24 @@ export const ProjectForm = ({ route }: Props) => {
             name="name"
             label="Name"
             placeholder="Project name"
+            rules={{
+              required: "Name is required",
+              minLength: {
+                value: NAME_MIN_LENGTH,
+                message: `Name must be at least ${NAME_MIN_LENGTH} characters`,
+              },
+              maxLength: {
+                value: NAME_MAX_LENGTH,
+                message: `Name must be at most ${NAME_MAX_LENGTH} characters`,
+              },
+            }}
           />
           <FormSelectInput
             control={control}
             name="typeId"
             label="Project type"
             placeholder="Select a project type"
+            rules={{ required: "Project type is required" }}
             options={
               projectTypes?.map((type) => ({
                 label: type.name,
@@ -122,12 +139,19 @@ export const ProjectForm = ({ route }: Props) => {
             label="Description"
             placeholder="Project description..."
             multiline={true}
+            rules={{
+              maxLength: {
+                value: DESCRIPTION_MAX_LENGTH,
+                message: `Description must be at most ${DESCRIPTION_MAX_LENGTH} characters`,
+              },
+            }}
           />
           <FormSelectInput
             control={control}
             name="artistId"
             label="Artist"
             placeholder="Select an artist"
+            rules={{ required: "Artist is required" }}
             options={
               artists?.map((artist) => ({
                 label: artist.name,

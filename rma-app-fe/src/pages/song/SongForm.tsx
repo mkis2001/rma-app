@@ -14,6 +14,11 @@ import { Header } from "../../components/typography/header";
 import { getProjectsShort } from "../../services/ProjectService";
 import { createSong, updateSong } from "../../services/SongService";
 import { CreateSong, Song } from "../../types/songTypes";
+import {
+  LYRICS_MAX_LENGTH,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+} from "../../constants";
 
 type SongFormProps = RouteProp<RootStackParamList, "SongForm">;
 
@@ -91,12 +96,24 @@ export const SongForm = ({ route }: Props) => {
             name="name"
             label="Name"
             placeholder="Song name"
+            rules={{
+              required: "Name is required",
+              minLength: {
+                value: NAME_MIN_LENGTH,
+                message: `Name must be at least ${NAME_MIN_LENGTH} characters`,
+              },
+              maxLength: {
+                value: NAME_MAX_LENGTH,
+                message: `Name must be at most ${NAME_MAX_LENGTH} characters`,
+              },
+            }}
           />
           <FormSelectInput
             control={control}
             name="projectId"
             label="Project"
             placeholder="Select a project"
+            rules={{ required: "Project is required" }}
             options={
               projects?.map((project) => ({
                 label: project.name,
@@ -110,6 +127,12 @@ export const SongForm = ({ route }: Props) => {
             label="Lyrics"
             placeholder="Song lyrics..."
             multiline={true}
+            rules={{
+              maxLength: {
+                value: LYRICS_MAX_LENGTH,
+                message: `Lyrics must be at most ${LYRICS_MAX_LENGTH} characters`,
+              },
+            }}
           />
         </FormContainer>
         <FormButton
