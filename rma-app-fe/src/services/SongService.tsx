@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { File as ExpoFile, Paths } from "expo-file-system";
 import { StorageAccessFramework } from "expo-file-system/legacy";
 import * as IntentLauncher from "expo-intent-launcher";
-import { CreateSong, Song, SongFile } from "../types/songTypes";
+import { CreateSong, Song, SongFile, UpdateSong } from "../types/songTypes";
 import { callApi, callApiUpload } from "./DataService";
 import { supabase } from "./Supabase";
 
@@ -23,6 +23,18 @@ export const getSongs = async (): Promise<Song[]> => {
 export const createSong = async (data: CreateSong) => {
   const project = await callApi({ method: "POST", route: endpoint, data });
   return project;
+};
+
+export const updateSong = async (
+  songId: number,
+  data: UpdateSong,
+): Promise<Song> => {
+  const song = await callApi({
+    method: "PATCH",
+    route: `${endpoint}/${songId}`,
+    data,
+  });
+  return song;
 };
 
 export const getSongFiles = async (songId: number): Promise<SongFile[]> => {

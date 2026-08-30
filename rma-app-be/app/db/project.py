@@ -1,11 +1,12 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import CheckConstraint, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.constants import (
     DESCRIPTION_MAX_LENGTH,
     NAME_MAX_LENGTH,
+    NAME_MIN_LENGTH,
 )
 from app.database import Base
 from app.db.artist import Artist
@@ -18,7 +19,13 @@ class Project(Base):
     __tablename__ = "Project"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(NAME_MAX_LENGTH))
+    name: Mapped[str] = mapped_column(
+        String(NAME_MAX_LENGTH),
+        CheckConstraint(
+            f"length(name) >= {NAME_MIN_LENGTH}",
+            name="ck_project_name_min_length",
+        ),
+    )
     type_id: Mapped[int] = mapped_column(ForeignKey("ProjectType.id"))
     type: Mapped["ProjectType"] = relationship()
     description: Mapped[Optional[str]] = mapped_column(String(DESCRIPTION_MAX_LENGTH))

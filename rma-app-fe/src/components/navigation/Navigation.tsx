@@ -21,14 +21,14 @@ export type RootStackParamList = {
   MainMenu: undefined;
   ArtistsPage: undefined;
   ArtistPage: { artist: Artist };
-  ArtistForm: { type: "create" | "edit" };
+  ArtistForm: { type: "create" } | { type: "edit"; artist: Artist };
   ArtistManageUsers: { artist: Artist };
   ProjectsPage: undefined;
   ProjectPage: { project: Project };
-  ProjectForm: { type: "create" | "edit" };
+  ProjectForm: { type: "create" } | { type: "edit"; project: Project };
   SongsPage: undefined;
   SongPage: { song: Song };
-  SongForm: { type: "create" | "edit" };
+  SongForm: { type: "create" } | { type: "edit"; song: Song };
   SongFilesPage: { song: Song; files: SongFile[] };
 };
 

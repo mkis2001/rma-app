@@ -3,6 +3,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 import { RootStackParamList } from "../../components/navigation/Navigation";
+import { IconButton } from "../../components/pressable/IconButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { BoldText } from "../../components/typography/boldText";
 import { Lyrics } from "../../components/typography/lyrics";
@@ -23,7 +24,7 @@ export const SongPage = ({ route }: Props) => {
   });
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <BoldText>{song.name}</BoldText>
       <BoldText>{song.project?.name}</BoldText>
       {song.lyrics && <Lyrics lyrics={song.lyrics} />}
@@ -35,6 +36,19 @@ export const SongPage = ({ route }: Props) => {
           navigation.navigate("SongFilesPage", { song, files: files ?? [] })
         }
       />
+      <View
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "flex-end",
+        }}
+      >
+        <IconButton
+          icon="pen"
+          onPress={() => navigation.navigate("SongForm", { type: "edit", song })}
+        />
+      </View>
     </View>
   );
 };

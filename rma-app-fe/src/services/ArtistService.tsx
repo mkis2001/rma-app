@@ -1,4 +1,4 @@
-import { Artist, ArtistShort, CreateArtist } from "../types/artistTypes";
+import { Artist, ArtistShort, CreateArtist, UpdateArtist } from "../types/artistTypes";
 import { callApi } from "./DataService";
 
 const endpoint = "artists";
@@ -25,6 +25,18 @@ export const createArtist = async (data: CreateArtist): Promise<Artist> => {
   const artist = await callApi({
     method: "POST",
     route: endpoint,
+    data,
+  });
+  return artist;
+};
+
+export const updateArtist = async (
+  artistId: number,
+  data: UpdateArtist,
+): Promise<Artist> => {
+  const artist = await callApi({
+    method: "PATCH",
+    route: `${endpoint}/${artistId}`,
     data,
   });
   return artist;
