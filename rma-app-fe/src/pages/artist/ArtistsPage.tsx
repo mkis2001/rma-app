@@ -35,7 +35,7 @@ export const ArtistsPage = () => {
           <MenuItem
             key={artist.id}
             title={artist.name}
-            secondaryTitle={`${artist.users.length} members`}
+            secondaryTitle={`${artist.users?.length ?? 0} members`}
             onPress={() => navigation.navigate("ArtistPage", { artist })}
           />
         ))}

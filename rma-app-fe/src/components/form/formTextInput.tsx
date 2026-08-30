@@ -1,5 +1,5 @@
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import { StyleSheet, TextInput } from "react-native";
+import { StyleSheet, Text, TextInput } from "react-native";
 import { colors, inputStyles, typography } from "../../theme";
 import { Label } from "../typography/label";
 
@@ -27,16 +27,22 @@ export const FormTextInput = <T extends FieldValues>({
       {label && <Label title={label} />}
       <Controller
         control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={inputStyles.textInput}
-            placeholder={placeholder}
-            value={value}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            multiline={multiline}
-            secureTextEntry={secureTextEntry}
-          />
+        render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+          <>
+            <TextInput
+              style={[
+                inputStyles.textInput,
+                error ? styles.inputError : undefined,
+              ]}
+              placeholder={placeholder}
+              value={value}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              multiline={multiline}
+              secureTextEntry={secureTextEntry}
+            />
+            {error && <Text style={styles.errorText}>{error.message}</Text>}
+          </>
         )}
         name={name}
         rules={rules}
@@ -46,10 +52,13 @@ export const FormTextInput = <T extends FieldValues>({
 };
 
 const styles = StyleSheet.create({
-  input: {
+  inputError: {
+    borderBottomColor: colors.error,
+  },
+  errorText: {
     fontFamily: typography.fontFamily,
-    fontSize: typography.fontSize,
-    borderBottomColor: colors.text,
-    borderBottomWidth: 2,
+    fontSize: typography.fontSize * 0.7,
+    color: colors.error,
+    marginTop: 2,
   },
 });

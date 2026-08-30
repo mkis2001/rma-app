@@ -12,6 +12,11 @@ import { FormButton } from "../../components/pressable/formButton";
 import { Header } from "../../components/typography/header";
 import { createArtist, updateArtist } from "../../services/ArtistService";
 import { Artist, CreateArtist } from "../../types/artistTypes";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+} from "../../constants";
 
 type ArtistFormProps = RouteProp<RootStackParamList, "ArtistForm">;
 
@@ -81,6 +86,17 @@ export const ArtistForm = ({ route }: Props) => {
           name="name"
           label="Name"
           placeholder="Artist name"
+          rules={{
+            required: "Name is required",
+            minLength: {
+              value: NAME_MIN_LENGTH,
+              message: `Name must be at least ${NAME_MIN_LENGTH} characters`,
+            },
+            maxLength: {
+              value: NAME_MAX_LENGTH,
+              message: `Name must be at most ${NAME_MAX_LENGTH} characters`,
+            },
+          }}
         />
         <FormTextInput
           control={control}
@@ -88,6 +104,12 @@ export const ArtistForm = ({ route }: Props) => {
           label="Description"
           placeholder="Artist description..."
           multiline={true}
+          rules={{
+            maxLength: {
+              value: DESCRIPTION_MAX_LENGTH,
+              message: `Description must be at most ${DESCRIPTION_MAX_LENGTH} characters`,
+            },
+          }}
         />
       </FormContainer>
       <FormButton
