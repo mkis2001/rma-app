@@ -101,7 +101,7 @@ export const ProjectForm = ({ route }: Props) => {
     !isArtistsLoading &&
     !isProjectTypesLoading && (
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-        <Header title={`${isEdit ? "Edit" : "Create"} Project`} type="h1" />
+        <Header title={`${isEdit ? "Edit" : "Create"} Project`} />
         <FormContainer>
           <FormTextInput
             control={control}

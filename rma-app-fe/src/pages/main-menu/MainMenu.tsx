@@ -1,4 +1,5 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { View } from "react-native";
 import { UserContext } from "../../../App";
@@ -6,6 +7,7 @@ import { RootStackParamList } from "../../components/navigation/Navigation";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { Header } from "../../components/typography/header";
 import { supabase } from "../../services/Supabase";
+import { getUserById } from "../../services/UserService";
 
 type Navigation = NavigationProp<RootStackParamList>;
 
@@ -13,9 +15,15 @@ export const MainMenu = () => {
   const navigation = useNavigation<Navigation>();
   const claims = useContext(UserContext);
 
+  const { data: user } = useQuery({
+    queryKey: ["user", claims?.sub],
+    queryFn: () => getUserById(claims!.sub),
+    enabled: !!claims?.sub,
+  });
+
   return (
     <View>
-      <Header type="h1" title={"Hello, " + (claims?.email || "User")} />
+      <Header title={"Hello " + (user?.username || "User") + "!"} />
       <MenuItem
         title="Projects"
         icon="record-vinyl"
@@ -31,8 +39,6 @@ export const MainMenu = () => {
         icon="people-group"
         onPress={() => navigation.navigate("ArtistsPage")}
       />
-      <MenuItem title="Profile" icon="user-large" onPress={() => {}} />
-      <MenuItem title="Settings" icon="gear" onPress={() => {}} />
       <MenuItem
         title="Logout"
         icon="right-from-bracket"

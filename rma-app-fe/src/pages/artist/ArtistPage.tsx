@@ -6,6 +6,7 @@ import { RootStackParamList } from "../../components/navigation/Navigation";
 import { IconButton } from "../../components/pressable/IconButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { BoldText } from "../../components/typography/boldText";
+import { Header } from "../../components/typography/header";
 
 type Props = {
   route: RouteProp<RootStackParamList, "ArtistPage">;
@@ -22,7 +23,7 @@ export const ArtistPage = ({ route }: Props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <BoldText>{artist.name}</BoldText>
+      <Header title={artist.name} subheader={"Artist"} />
       <ScrollableView>
         <BoldText>{artist.description}</BoldText>
         {artist.users?.map((user) => (

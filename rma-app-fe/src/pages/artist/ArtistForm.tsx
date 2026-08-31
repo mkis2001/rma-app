@@ -10,13 +10,13 @@ import { SuccessModal } from "../../components/modal/SuccessModal";
 import { RootStackParamList } from "../../components/navigation/Navigation";
 import { FormButton } from "../../components/pressable/formButton";
 import { Header } from "../../components/typography/header";
-import { createArtist, updateArtist } from "../../services/ArtistService";
-import { Artist, CreateArtist } from "../../types/artistTypes";
 import {
   DESCRIPTION_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
 } from "../../constants";
+import { createArtist, updateArtist } from "../../services/ArtistService";
+import { Artist, CreateArtist } from "../../types/artistTypes";
 
 type ArtistFormProps = RouteProp<RootStackParamList, "ArtistForm">;
 
@@ -79,7 +79,7 @@ export const ArtistForm = ({ route }: Props) => {
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-      <Header title={`${isEdit ? "Edit" : "Create"} Artist`} type="h1" />
+      <Header title={`${isEdit ? "Edit" : "Create"} Artist`} />
       <FormContainer>
         <FormTextInput
           control={control}

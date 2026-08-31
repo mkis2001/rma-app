@@ -1,25 +1,32 @@
-import { StyleSheet, Text, TextStyle } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "../../theme";
 
 type HeaderProps = {
   title: string;
-  type?: "h1" | "h2" | "h3";
+  subheader?: string;
   style?: any;
 };
 
-const types: Record<NonNullable<HeaderProps["type"]>, TextStyle> = {
-  h1: { fontSize: 40 },
-  h2: { fontSize: 24 },
-  h3: { fontSize: 18 },
-};
-
-export const Header = ({ title, type = "h1", style }: HeaderProps) => {
-  return <Text style={[styles.title, types[type], style]}>{title}</Text>;
+export const Header = ({ title, subheader, style }: HeaderProps) => {
+  return (
+    <View style={[styles.container, style]}>
+      {subheader ? <Text style={styles.subheader}>{subheader}</Text> : null}
+      <Text style={styles.title}>{title}</Text>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-  title: {
+  container: {
     marginBottom: 16,
+  },
+  subheader: {
+    fontFamily: typography.fontFamily,
+    fontSize: typography.fontSize,
+    color: colors.textTransparent,
+  },
+  title: {
+    fontSize: 40,
     fontFamily: typography.fontFamilyHeader,
     color: colors.textLighter,
   },

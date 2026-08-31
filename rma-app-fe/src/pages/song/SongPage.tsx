@@ -6,6 +6,7 @@ import { RootStackParamList } from "../../components/navigation/Navigation";
 import { IconButton } from "../../components/pressable/IconButton";
 import { MenuItem } from "../../components/pressable/menuItem";
 import { BoldText } from "../../components/typography/boldText";
+import { Header } from "../../components/typography/header";
 import { Lyrics } from "../../components/typography/lyrics";
 import { getSongFiles } from "../../services/SongService";
 
@@ -25,7 +26,7 @@ export const SongPage = ({ route }: Props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <BoldText>{song.name}</BoldText>
+      <Header title={song.name} subheader={"Song"} />
       <BoldText>{song.project?.name}</BoldText>
       {song.lyrics && <Lyrics lyrics={song.lyrics} />}
       <MenuItem
@@ -46,7 +47,9 @@ export const SongPage = ({ route }: Props) => {
       >
         <IconButton
           icon="pen"
-          onPress={() => navigation.navigate("SongForm", { type: "edit", song })}
+          onPress={() =>
+            navigation.navigate("SongForm", { type: "edit", song })
+          }
         />
       </View>
     </View>

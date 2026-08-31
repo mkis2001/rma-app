@@ -1,9 +1,5 @@
 import { RouteProp } from "@react-navigation/native";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
@@ -17,13 +13,13 @@ import { ModalButton } from "../../components/pressable/modalButton";
 import { ScrollableView } from "../../components/ScrollableView";
 import { BoldText } from "../../components/typography/boldText";
 import { Header } from "../../components/typography/header";
-import { SongFile } from "../../types/songTypes";
 import {
   deleteSongFile,
   downloadSongFile,
   getSongFiles,
   uploadSongFile,
 } from "../../services/SongService";
+import { SongFile } from "../../types/songTypes";
 
 type Props = {
   route: RouteProp<RootStackParamList, "SongFilesPage">;
@@ -42,11 +38,7 @@ export const SongFilesPage = ({ route }: Props) => {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: (params: {
-      uri: string;
-      fileName: string;
-      mimeType: string;
-    }) =>
+    mutationFn: (params: { uri: string; fileName: string; mimeType: string }) =>
       uploadSongFile(song.id, params.uri, params.fileName, params.mimeType),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["songFiles", song.id] });
@@ -98,8 +90,7 @@ export const SongFilesPage = ({ route }: Props) => {
 
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
-      const fileName =
-        asset.fileName || asset.uri.split("/").pop() || "video";
+      const fileName = asset.fileName || asset.uri.split("/").pop() || "video";
       const mimeType = asset.mimeType || "video/mp4";
       uploadMutation.mutate({ uri: asset.uri, fileName, mimeType });
     }
@@ -114,7 +105,7 @@ export const SongFilesPage = ({ route }: Props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header title={`${song.name} - Files`} />
+      <Header title={song.name} subheader={"Files"} />
       <ScrollableView>
         {files?.map((file) => (
           <FileItem
