@@ -5,14 +5,20 @@ import { StyleSheet, View } from "react-native";
 import { colors, measures, typography } from "../../theme";
 import { RegularText } from "../typography/regularText";
 
-export const SongFilesButton = ({
+export const CountButton = ({
   count,
+  singular,
+  plural,
+  icon,
   onPress,
 }: {
   count: number;
+  singular: string;
+  plural: string;
+  icon: React.ComponentProps<typeof FontAwesome6>["name"];
   onPress?: () => void;
 }) => {
-  const word = count % 10 === 1 ? "file" : "files";
+  const word = count % 10 === 1 ? singular : plural;
 
   return (
     <MotiPressable
@@ -36,7 +42,7 @@ export const SongFilesButton = ({
           <RegularText style={styles.count}>{count}</RegularText>
           <RegularText style={styles.word}> {word}</RegularText>
         </RegularText>
-        <FontAwesome6 name="file" size={24} color={colors.backgroundDarker} />
+        <FontAwesome6 name={icon} size={24} color={colors.backgroundDarker} />
       </View>
     </MotiPressable>
   );

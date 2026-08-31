@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { RootStackParamList } from "../../components/navigation/Navigation";
 import { IconButton } from "../../components/pressable/IconButton";
-import { SongFilesButton } from "../../components/pressable/SongFilesButton";
+import { CountButton } from "../../components/pressable/CountButton";
 import { BoldText } from "../../components/typography/boldText";
 import { Header } from "../../components/typography/header";
 import { Lyrics } from "../../components/typography/lyrics";
@@ -33,8 +33,11 @@ export const SongPage = ({ route }: Props) => {
         from <BoldText>{song.project?.name}</BoldText>
       </RegularText>
       <View style={styles.filesButton}>
-        <SongFilesButton
+        <CountButton
           count={files?.length ?? 0}
+          singular="file"
+          plural="files"
+          icon="file"
           onPress={() =>
             navigation.navigate("SongFilesPage", { song, files: files ?? [] })
           }
