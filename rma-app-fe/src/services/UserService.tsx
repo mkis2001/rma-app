@@ -15,6 +15,14 @@ export const getUsersByUsername = async (username: string): Promise<User[]> => {
   return users;
 };
 
+export const getUserById = async (id: string): Promise<User> => {
+  const user = await callApi({
+    method: "GET",
+    route: `${endpoint}/${id}`,
+  });
+  return user;
+};
+
 export const UsernameAvailable = async (
   username: string,
 ): Promise<UsernameAvailableResponse> => {

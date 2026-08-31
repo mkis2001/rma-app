@@ -2,8 +2,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { Dimensions, Image, Pressable, StyleSheet, View } from "react-native";
-import { Shadow } from "react-native-shadow-2";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { ModalView } from "../../components/modal/ModalView";
 import { ModalButton } from "../../components/pressable/modalButton";
 import { BoldText } from "../../components/typography/boldText";
@@ -73,39 +72,35 @@ export const ProjectImage = ({ projectId }: Props) => {
 
   return (
     <>
-      <Shadow
-        distance={1}
-        offset={[10, 10]}
-        startColor={colors.backgroundDarker}
-        endColor={colors.text}
+      <Pressable
+        onPress={() => setIsModalOpen(true)}
+        android_ripple={null}
+        style={[
+          styles.imageContainer,
+          !imageUrl && { backgroundColor: colors.textLighter },
+        ]}
       >
-        <Pressable
-          onPress={() => setIsModalOpen(true)}
-          style={[
-            styles.imageContainer,
-            !imageUrl && { backgroundColor: colors.textLighter },
-          ]}
-        >
-          {imageUrl ? (
-            <Image
-              source={{ uri: imageUrl }}
-              style={styles.image}
-              resizeMode="cover"
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.placeholder}>
+            <FontAwesome6
+              name="image"
+              size={32}
+              color={colors.backgroundDarker}
             />
-          ) : (
-            <View style={styles.placeholder}>
-              <FontAwesome6
-                name="image"
-                size={32}
-                color={colors.backgroundDarker}
-              />
-              <RegularText style={styles.placeholderText}>
-                Add project image
-              </RegularText>
-            </View>
-          )}
-        </Pressable>
-      </Shadow>
+            <RegularText
+              style={[styles.placeholderText, { textAlign: "center" }]}
+            >
+              Add project image
+            </RegularText>
+          </View>
+        )}
+      </Pressable>
 
       <ModalView isOpen={isModalOpen} handleClose={() => setIsModalOpen(false)}>
         <BoldText>Project Image</BoldText>
@@ -126,16 +121,13 @@ export const ProjectImage = ({ projectId }: Props) => {
   );
 };
 
-const IMAGE_SIZE = (Dimensions.get("window").width - 40) / 2;
-
 const styles = StyleSheet.create({
   imageContainer: {
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE,
+    width: "100%",
+    height: "100%",
     backgroundColor: colors.text,
     borderRadius: measures.radius,
     overflow: "hidden",
-    marginRight: 12,
   },
   image: {
     width: "100%",
@@ -145,6 +137,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: measures.padding,
     gap: 12,
   },
   placeholderText: {

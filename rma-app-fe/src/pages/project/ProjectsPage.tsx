@@ -24,7 +24,7 @@ export const ProjectsPage = () => {
     <LoadingScreen />
   ) : (
     <View style={{ flex: 1 }}>
-      <Header title="Projects" type="h1" />
+      <Header title="Projects" />
       <ScrollableView>
         {projects?.map((project) => (
           <MenuItem

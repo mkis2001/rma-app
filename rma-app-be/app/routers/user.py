@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, status
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api_models.user import UserCreateRequest
+from app.api_models.user import UserCreateRequest, UserResponse
 from app.database import get_db
 from app.db.user import User
 
@@ -16,6 +18,21 @@ def get_user(username: str, db: Session = Depends(get_db)):
     users = db.scalars(select(User).where(User.username.ilike(f"%{username}%"))).all()
 
     return users
+
+
+@router.get("/{user_id}", status_code=status.HTTP_200_OK, response_model=UserResponse)
+def get_user_by_id(user_id: uuid.UUID, db: Session = Depends(get_db)):
+    """Endpoint for getting a user by id."""
+
+    user = db.get(User, user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+
+    return user
 
 
 @router.get("/{username}/available", status_code=status.HTTP_200_OK)

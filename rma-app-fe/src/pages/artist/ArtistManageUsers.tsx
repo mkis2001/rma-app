@@ -1,143 +1,98 @@
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useContext, useEffect, useState } from "react";
-import { TextInput } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useContext, useState } from "react";
+import { View } from "react-native";
 import { UserContext } from "../../../App";
 import { ConfirmationModal } from "../../components/modal/ConfirmationModal";
+import { ScrollableView } from "../../components/ScrollableView";
 import { RootStackParamList } from "../../components/navigation/Navigation";
-import { MenuItem } from "../../components/pressable/menuItem";
-import { BoldText } from "../../components/typography/boldText";
-import { RegularText } from "../../components/typography/regularText";
+import { IconButton } from "../../components/pressable/IconButton";
+import { ListButton } from "../../components/pressable/ListButton";
+import { Header } from "../../components/typography/header";
 import {
-  addUserToArtist,
+  getArtist,
   removeUserFromArtist,
 } from "../../services/ArtistService";
-import { getUsersByUsername } from "../../services/UserService";
-import { inputStyles } from "../../theme";
+import { User } from "../../types/userTypes";
+import { colors } from "../../theme";
 
 type Props = {
   route: RouteProp<RootStackParamList, "ArtistManageUsers">;
 };
 
+type ArtistNavigation = NativeStackNavigationProp<
+  RootStackParamList,
+  "ArtistManageUsers"
+>;
+
 export const ArtistManageUsers = ({ route }: Props) => {
-  const { artist } = route.params;
+  const { artist: artistParam } = route.params;
+  const navigation = useNavigation<ArtistNavigation>();
   const claims = useContext(UserContext);
   const currentUserId = claims?.sub;
 
-  const [users, setUsers] = useState(
-    artist.users.filter((user) => user.id !== currentUserId),
-  );
-  const [debouncedValue, setDebouncedValue] = useState("");
-  const [inputValue, setInputValue] = useState("");
-  const [isOpen, setIsOpen] = useState([false, null] as [
-    boolean,
-    number | null,
-  ]);
-
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(inputValue.trim());
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [inputValue]);
-  const { data: foundUsers, isLoading } = useQuery({
-    queryKey: ["usersByUsername", debouncedValue],
-    queryFn: () => getUsersByUsername(debouncedValue),
-    enabled: debouncedValue.length > 0,
+  const { data: artist } = useQuery({
+    queryKey: ["artist", artistParam.id],
+    queryFn: () => getArtist(artistParam.id),
+    initialData: artistParam,
   });
 
-  // ADD new USER to artist and update the users state
-  const addUserMutation = useMutation({
-    mutationFn: (data: { artistId: number; userId: string }) => {
-      return addUserToArtist(data.artistId, data.userId);
-    },
-    onSuccess: (data, variables) => {
-      setUsers((prevUsers) => [
-        ...prevUsers,
-        data?.users.find((user) => user.id === variables.userId)!,
-      ]);
-      queryClient.invalidateQueries({ queryKey: ["artists"] });
-    },
-  });
+  const [userToRemove, setUserToRemove] = useState<User | null>(null);
 
-  // REMOVE USER from artist and update the users state
+  const currentUser = artist.users.find((user) => user.id === currentUserId);
+  const otherUsers = artist.users.filter((user) => user.id !== currentUserId);
+
   const removeUserMutation = useMutation({
-    mutationFn: (data: { artistId: number; userId: string }) => {
-      return removeUserFromArtist(data.artistId, data.userId);
-    },
-    onSuccess: (data, variables) => {
-      setUsers((prevUsers) =>
-        prevUsers.filter((user) => user.id !== variables.userId),
-      );
+    mutationFn: (userId: string) => removeUserFromArtist(artist.id, userId),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["artist", artist.id], data);
       queryClient.invalidateQueries({ queryKey: ["artists"] });
     },
   });
-
-  const handleAddUser = (userId: string) => {
-    addUserMutation.mutate({ artistId: artist.id, userId });
-  };
-  const handleRemoveUser = (userId: string) => {
-    removeUserMutation.mutate({ artistId: artist.id, userId });
-  };
 
   return (
-    <KeyboardAwareScrollView>
-      {/* List of users */}
-      <BoldText>Artist users</BoldText>
-      <MenuItem
-        title={`${artist.users.find((user) => user.id === currentUserId)?.username}`}
-        icon="user"
-      />
-      {users.map((user) => (
-        <MenuItem
-          key={user.id}
-          title={user.username}
-          icon="square-minus"
-          onPress={() => {
-            setIsOpen([true, users.indexOf(user)]);
-          }}
-        />
-      ))}
+    <View style={{ flex: 1 }}>
+      <Header title={artist.name} subheader="Manage Users" />
 
-      {/* Add new user */}
-      <BoldText>Add user</BoldText>
-      <TextInput
-        style={inputStyles.textInput}
-        placeholder="Enter username"
-        value={inputValue}
-        onChangeText={setInputValue}
-      />
-      {isLoading && (
-        <RegularText style={{ textType: "italic" }}>Loading...</RegularText>
-      )}
-      {foundUsers?.map((user) => {
-        if (!users.find((u) => u.id === user.id)) {
-          return (
-            <MenuItem
-              key={user.id}
-              title={user.username}
-              icon="square-plus"
-              onPress={() => handleAddUser(user.id)}
-            />
-          );
-        }
-        return null;
-      })}
+      <ScrollableView>
+        {currentUser && (
+          <ListButton
+            label={currentUser.username}
+            icon="user"
+            backgroundColor={colors.text}
+          />
+        )}
+        {otherUsers.map((user) => (
+          <ListButton
+            key={user.id}
+            label={user.username}
+            onLongPress={() => setUserToRemove(user)}
+          />
+        ))}
+      </ScrollableView>
+
+      <View style={{ display: "flex", alignItems: "flex-end" }}>
+        <IconButton
+          icon="plus"
+          onPress={() => navigation.navigate("ArtistAddUser", { artist })}
+        />
+      </View>
 
       {/* Confirmation Modal */}
       <ConfirmationModal
         title="Are you sure you want to remove this user?"
-        isOpen={isOpen[0]}
+        isOpen={userToRemove !== null}
         onConfirm={() => {
-          handleRemoveUser(users[isOpen[1]!].id);
-          setIsOpen([false, null]);
+          if (userToRemove) {
+            removeUserMutation.mutate(userToRemove.id);
+          }
+          setUserToRemove(null);
         }}
-        handleClose={() => setIsOpen([false, null])}
+        handleClose={() => setUserToRemove(null)}
       />
-    </KeyboardAwareScrollView>
+    </View>
   );
 };

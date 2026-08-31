@@ -1,4 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
@@ -12,12 +12,19 @@ import { getSongs } from "../../services/SongService";
 
 type SongNavigation = NativeStackNavigationProp<RootStackParamList>;
 
-export const SongsPage = () => {
+type Props = {
+  route: RouteProp<RootStackParamList, "SongsPage">;
+};
+
+export const SongsPage = ({ route }: Props) => {
   const navigation = useNavigation<SongNavigation>();
 
+  const projectId = route.params?.projectId;
+  const projectName = route.params?.projectName;
+
   const { data: songs, isLoading } = useQuery({
-    queryKey: ["songs"],
-    queryFn: () => getSongs(),
+    queryKey: ["songs", { projectId }],
+    queryFn: () => getSongs(projectId !== undefined ? { projectId } : undefined),
   });
 
   if (isLoading) {
@@ -26,7 +33,7 @@ export const SongsPage = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header title="Songs" />
+      <Header title="Songs" subheader={projectName} />
       <ScrollableView>
         {songs?.map((song) => (
           <MenuItem

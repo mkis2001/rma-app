@@ -2,6 +2,7 @@ import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View } from "react-native";
 import { ArtistForm } from "../../pages/artist/ArtistForm";
+import { ArtistAddUser } from "../../pages/artist/ArtistAddUser";
 import { ArtistManageUsers } from "../../pages/artist/ArtistManageUsers";
 import { ArtistPage } from "../../pages/artist/ArtistPage";
 import { ArtistsPage } from "../../pages/artist/ArtistsPage";
@@ -23,12 +24,15 @@ export type RootStackParamList = {
   ArtistPage: { artist: Artist };
   ArtistForm: { type: "create" } | { type: "edit"; artist: Artist };
   ArtistManageUsers: { artist: Artist };
+  ArtistAddUser: { artist: Artist };
   ProjectsPage: undefined;
   ProjectPage: { project: Project };
   ProjectForm: { type: "create" } | { type: "edit"; project: Project };
-  SongsPage: undefined;
+  SongsPage: { projectId?: number; projectName?: string } | undefined;
   SongPage: { song: Song };
-  SongForm: { type: "create" } | { type: "edit"; song: Song };
+  SongForm:
+    | { type: "create"; projectId?: number }
+    | { type: "edit"; song: Song };
   SongFilesPage: { song: Song; files: SongFile[] };
 };
 
@@ -100,6 +104,11 @@ export const Navigation = () => {
           <RootStack.Screen
             name="ArtistManageUsers"
             component={ArtistManageUsers}
+            options={{ animation: "slide_from_right" }}
+          />
+          <RootStack.Screen
+            name="ArtistAddUser"
+            component={ArtistAddUser}
             options={{ animation: "slide_from_right" }}
           />
           <RootStack.Screen

@@ -1,11 +1,14 @@
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { View } from "react-native";
-import { ScrollableView } from "../../components/ScrollableView";
+import { useQuery } from "@tanstack/react-query";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { RootStackParamList } from "../../components/navigation/Navigation";
+import { CountButton } from "../../components/pressable/CountButton";
 import { IconButton } from "../../components/pressable/IconButton";
-import { MenuItem } from "../../components/pressable/menuItem";
-import { BoldText } from "../../components/typography/boldText";
+import { Header } from "../../components/typography/header";
+import { RegularText } from "../../components/typography/regularText";
+import { getArtist } from "../../services/ArtistService";
+import { colors, measures } from "../../theme";
 
 type Props = {
   route: RouteProp<RootStackParamList, "ArtistPage">;
@@ -18,24 +21,35 @@ type ArtistNavigation = NativeStackNavigationProp<
 
 export const ArtistPage = ({ route }: Props) => {
   const navigation = useNavigation<ArtistNavigation>();
-  const { artist } = route.params;
+  const { artist: artistParam } = route.params;
+
+  const { data: artist } = useQuery({
+    queryKey: ["artist", artistParam.id],
+    queryFn: () => getArtist(artistParam.id),
+    initialData: artistParam,
+  });
 
   return (
     <View style={{ flex: 1 }}>
-      <BoldText>{artist.name}</BoldText>
-      <ScrollableView>
-        <BoldText>{artist.description}</BoldText>
-        {artist.users?.map((user) => (
-          <BoldText key={user.id}>{user.username}</BoldText>
-        ))}
-      </ScrollableView>
-      <MenuItem
-        title="Manage users"
-        onPress={() => {
-          navigation.navigate("ArtistManageUsers", { artist });
-        }}
-      />
-      <View style={{ display: "flex", alignItems: "flex-end" }}>
+      <Header title={artist.name} subheader={"Artist"} />
+      <View style={styles.usersButton}>
+        <CountButton
+          count={artist.users?.length ?? 0}
+          singular="user"
+          plural="users"
+          icon="user"
+          onPress={() => {
+            navigation.navigate("ArtistManageUsers", { artist });
+          }}
+        />
+      </View>
+      <View style={styles.descriptionContainer}>
+        <RegularText style={styles.descriptionHeader}>Description</RegularText>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <RegularText>{artist.description}</RegularText>
+        </ScrollView>
+      </View>
+      <View style={styles.footer}>
         <IconButton
           icon="pen"
           onPress={() =>
@@ -46,3 +60,27 @@ export const ArtistPage = ({ route }: Props) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  usersButton: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  descriptionContainer: {
+    flexShrink: 1,
+    backgroundColor: colors.backgroundDarker,
+    padding: measures.padding,
+    borderRadius: measures.radius,
+  },
+  descriptionHeader: {
+    fontFamily: "SNPro-Italic",
+    color: colors.textLighter,
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  footer: {
+    alignItems: "flex-end",
+    marginTop: "auto",
+    paddingTop: 20,
+  },
+});

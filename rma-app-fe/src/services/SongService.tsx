@@ -15,9 +15,21 @@ const OPENABLE_MIME_TYPES = ["application/pdf"];
 
 const SAF_DIRECTORY_KEY = "saf_download_directory_uri";
 
-export const getSongs = async (): Promise<Song[]> => {
-  const projects = await callApi({ method: "GET", route: endpoint });
-  return projects;
+export type SongFilters = {
+  projectId?: number;
+};
+
+export const getSongs = async (filters?: SongFilters): Promise<Song[]> => {
+  const params = new URLSearchParams();
+  if (filters?.projectId !== undefined) {
+    params.append("project_id", String(filters.projectId));
+  }
+
+  const queryString = params.toString();
+  const route = queryString ? `${endpoint}?${queryString}` : endpoint;
+
+  const songs = await callApi({ method: "GET", route });
+  return songs;
 };
 
 export const createSong = async (data: CreateSong) => {

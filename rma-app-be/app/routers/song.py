@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -15,16 +15,27 @@ router = APIRouter(prefix="/songs", tags=["songs"])
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[SongResponse])
-def get_songs(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """Endpoint for getting all songs."""
+def get_songs(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    project_id: int | None = Query(
+        default=None, description="Filter songs by project id."
+    ),
+):
+    """Endpoint for getting all songs owned by the user, optionally filtered by project."""
 
-    songs = db.scalars(
+    query = (
         select(Song)
         .join(Project, Song.project_id == Project.id)
         .join(Artist, Project.artist_id == Artist.id)
         .join(UserArtist, UserArtist.artist_id == Artist.id)
         .where(UserArtist.user_id == user.id)
-    ).all()
+    )
+
+    if project_id is not None:
+        query = query.where(Song.project_id == project_id)
+
+    songs = db.scalars(query).all()
 
     return songs
 

@@ -35,12 +35,13 @@ export const SongForm = ({ route }: Props) => {
   const params = route.params;
   const isEdit = params.type === "edit";
   const song = isEdit ? params.song : undefined;
+  const initialProjectId = isEdit ? song?.project?.id : params.projectId;
 
   const { control, handleSubmit } = useForm<CreateSong>({
     defaultValues: {
       name: song?.name ?? "",
       lyrics: song?.lyrics ?? "",
-      projectId: song?.project?.id,
+      projectId: initialProjectId,
     },
   });
   const queryClient = useQueryClient();
@@ -89,7 +90,7 @@ export const SongForm = ({ route }: Props) => {
   return (
     !isProjectsLoading && (
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-        <Header title={`${isEdit ? "Edit" : "Create"} Song`} type="h1" />
+        <Header title={`${isEdit ? "Edit" : "Create"} Song`} />
         <FormContainer>
           <FormTextInput
             control={control}
