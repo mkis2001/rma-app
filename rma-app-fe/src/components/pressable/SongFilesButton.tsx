@@ -1,18 +1,18 @@
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
 import { MotiPressable } from "moti/interactions";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { colors, measures, typography } from "../../theme";
 import { RegularText } from "../typography/regularText";
 
-export const SongsButton = ({
+export const SongFilesButton = ({
   count,
   onPress,
 }: {
   count: number;
   onPress?: () => void;
 }) => {
-  const word = count % 10 === 1 ? "song" : "songs";
+  const word = count % 10 === 1 ? "file" : "files";
 
   return (
     <MotiPressable
@@ -31,24 +31,13 @@ export const SongsButton = ({
       transition={{ type: "timing", duration: 100 }}
       onPress={onPress}
     >
-      <RegularText style={styles.text}>
-        {count > 0 ? (
-          <>
-            <RegularText style={styles.count}>{count}</RegularText>
-            <RegularText style={styles.word}> {word}</RegularText>
-          </>
-        ) : (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
-            <RegularText style={styles.word}>Add songs</RegularText>
-            <FontAwesome
-              name="plus"
-              size={18}
-              style={{ transform: [{ translateY: 2 }] }}
-              color={colors.backgroundDarker}
-            />
-          </View>
-        )}
-      </RegularText>
+      <View style={styles.row}>
+        <RegularText style={styles.text}>
+          <RegularText style={styles.count}>{count}</RegularText>
+          <RegularText style={styles.word}> {word}</RegularText>
+        </RegularText>
+        <FontAwesome6 name="file" size={24} color={colors.backgroundDarker} />
+      </View>
     </MotiPressable>
   );
 };
@@ -59,7 +48,10 @@ const styles = StyleSheet.create({
     borderRadius: measures.radius,
     paddingVertical: measures.padding,
     paddingHorizontal: measures.padding,
-    justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
   },
   text: {

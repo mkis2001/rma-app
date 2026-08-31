@@ -52,7 +52,20 @@ export const ProjectPage = ({ route }: Props) => {
               backgroundColor={projectTypeColor[project.type.name] || "gray"}
             />
           </View>
-          <SongsButton count={songs?.length ?? 0} />
+          <SongsButton
+            count={songs?.length ?? 0}
+            onPress={() =>
+              songs && songs.length > 0
+                ? navigation.navigate("SongsPage", {
+                    projectId: project.id,
+                    projectName: project.name,
+                  })
+                : navigation.navigate("SongForm", {
+                    type: "create",
+                    projectId: project.id,
+                  })
+            }
+          />
         </View>
         <View style={styles.imageWrapper}>
           <ProjectImage projectId={project.id} />

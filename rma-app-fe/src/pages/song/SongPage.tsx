@@ -1,14 +1,16 @@
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
-import { View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { RootStackParamList } from "../../components/navigation/Navigation";
 import { IconButton } from "../../components/pressable/IconButton";
-import { MenuItem } from "../../components/pressable/menuItem";
+import { SongFilesButton } from "../../components/pressable/SongFilesButton";
 import { BoldText } from "../../components/typography/boldText";
 import { Header } from "../../components/typography/header";
 import { Lyrics } from "../../components/typography/lyrics";
+import { RegularText } from "../../components/typography/regularText";
 import { getSongFiles } from "../../services/SongService";
+import { colors, measures } from "../../theme";
 
 type Props = {
   route: RouteProp<RootStackParamList, "SongPage">;
@@ -27,24 +29,24 @@ export const SongPage = ({ route }: Props) => {
   return (
     <View style={{ flex: 1 }}>
       <Header title={song.name} subheader={"Song"} />
-      <BoldText>{song.project?.name}</BoldText>
-      {song.lyrics && <Lyrics lyrics={song.lyrics} />}
-      <MenuItem
-        title="Song Files"
-        secondaryTitle={`${files?.length ?? 0} ${files?.length != undefined && files?.length % 10 === 1 ? "file" : "files"}`}
-        icon="file"
-        onPress={() =>
-          navigation.navigate("SongFilesPage", { song, files: files ?? [] })
-        }
-      />
-      <View
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "flex-end",
-        }}
-      >
+      <RegularText>
+        from <BoldText>{song.project?.name}</BoldText>
+      </RegularText>
+      <View style={styles.filesButton}>
+        <SongFilesButton
+          count={files?.length ?? 0}
+          onPress={() =>
+            navigation.navigate("SongFilesPage", { song, files: files ?? [] })
+          }
+        />
+      </View>
+      <View style={styles.lyricsContainer}>
+        <RegularText style={styles.lyricsHeader}>Lyrics</RegularText>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {song.lyrics && <Lyrics lyrics={song.lyrics} />}
+        </ScrollView>
+      </View>
+      <View style={styles.footer}>
         <IconButton
           icon="pen"
           onPress={() =>
@@ -55,3 +57,27 @@ export const SongPage = ({ route }: Props) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  filesButton: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  lyricsContainer: {
+    flexShrink: 1,
+    backgroundColor: colors.backgroundDarker,
+    padding: measures.padding,
+    borderRadius: measures.radius,
+  },
+  lyricsHeader: {
+    fontFamily: "SNPro-Italic",
+    color: colors.textLighter,
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  footer: {
+    alignItems: "flex-end",
+    marginTop: "auto",
+    paddingTop: 20,
+  },
+});

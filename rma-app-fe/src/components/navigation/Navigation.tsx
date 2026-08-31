@@ -26,9 +26,11 @@ export type RootStackParamList = {
   ProjectsPage: undefined;
   ProjectPage: { project: Project };
   ProjectForm: { type: "create" } | { type: "edit"; project: Project };
-  SongsPage: undefined;
+  SongsPage: { projectId?: number; projectName?: string } | undefined;
   SongPage: { song: Song };
-  SongForm: { type: "create" } | { type: "edit"; song: Song };
+  SongForm:
+    | { type: "create"; projectId?: number }
+    | { type: "edit"; song: Song };
   SongFilesPage: { song: Song; files: SongFile[] };
 };
 
