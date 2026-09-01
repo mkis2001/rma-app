@@ -56,6 +56,7 @@ export const ArtistForm = ({ route }: Props) => {
     },
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["artists"] });
+      queryClient.setQueryData(["artist", result.id], result);
       setUpdatedArtist(result);
       setIsOpen(true);
     },
